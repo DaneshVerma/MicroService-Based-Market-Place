@@ -2,7 +2,7 @@ const request = require("supertest");
 const app = require("../src/app");
 const User = require("../src/models/user.model");
 
-describe("POST /auth/register", () => {
+describe("POST /api/auth/register", () => {
   const basePayload = {
     username: "john_doe",
     fullName: {
@@ -25,7 +25,7 @@ describe("POST /auth/register", () => {
 
   it("should register a new user successfully", async () => {
     const response = await request(app)
-      .post("/auth/register")
+      .post("/api/auth/register")
       .send(basePayload);
 
     expect(response.statusCode).toBe(201);
@@ -51,7 +51,7 @@ describe("POST /auth/register", () => {
     });
 
     const response = await request(app)
-      .post("/auth/register")
+      .post("/api/auth/register")
       .send(basePayload);
 
     expect(response.statusCode).toBe(409);
@@ -62,7 +62,7 @@ describe("POST /auth/register", () => {
     const { username, ...invalidPayload } = basePayload;
 
     const response = await request(app)
-      .post("/auth/register")
+      .post("/api/auth/register")
       .send(invalidPayload);
 
     expect(response.statusCode).toBe(400);

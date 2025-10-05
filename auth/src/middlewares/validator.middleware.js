@@ -42,7 +42,13 @@ const registerUserValidation = [
       if (addresses && addresses.length > 0) {
         for (let i = 0; i < addresses.length; i++) {
           const address = addresses[i];
-          if (!address.street || !address.city || !address.state || !address.zip || !address.country) {
+          if (
+            !address.street ||
+            !address.city ||
+            !address.state ||
+            !address.zip ||
+            !address.country
+          ) {
             throw new Error(`Address at index ${i} is missing required fields`);
           }
         }
@@ -53,6 +59,14 @@ const registerUserValidation = [
   respondWithValidationErrors,
 ];
 
+const loginValidation = [
+  body("email").optional().isString().withMessage("Email is invalid"),
+  body("username").optional().isString().withMessage("Username is invalid"),
+  body("password").isString().notEmpty().withMessage("Password is required"),
+  respondWithValidationErrors,
+];
+
 module.exports = {
   registerUserValidation,
+  loginValidation,
 };
