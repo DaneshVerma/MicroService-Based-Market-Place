@@ -14,31 +14,29 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  fullname: {
-    firstname: {
+  fullName: {
+    firstName: {
       type: String,
       required: true,
     },
-    lastname: {
+    lastName: {
       type: String,
       required: true,
     },
   },
   email: {
-    match: "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/",
     required: true,
     type: String,
+    match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   },
-  password: { type: String },
+  password: { type: String, select: false },
   role: {
     type: String,
     enum: ["seller", "user"],
   },
-  addresses: {
-    addressSchema,
-  },
+  addresses: [addressSchema],
 });
 
 const userModel = mongoose.model("user", userSchema);
 
-module.exports = userModel; 
+module.exports = userModel;
