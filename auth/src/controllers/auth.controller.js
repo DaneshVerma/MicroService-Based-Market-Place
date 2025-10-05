@@ -73,11 +73,17 @@ async function login(req, res) {
     }).select("+password");
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" }).message("Invalid credentials");
+      return res
+        .status(400)
+        .json({ message: "Invalid credentials" })
+        .message("Invalid credentials");
     }
     const isPasswordValid = await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid credentials" }).message("Invalid credentials");
+      return res
+        .status(400)
+        .json({ message: "Invalid credentials" })
+        .message("Invalid credentials");
     }
     const token = jwt.sign(
       {
@@ -110,7 +116,30 @@ async function login(req, res) {
     return res.status(400).message(error.message);
   }
 }
+
+async function getCurrentUser(req, res) {
+  try {
+    const user = await User.findById(req.user.id).select(
+      "-password -__v -refreshTokens"
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res.status(200).json({
+      message: "User found",
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      fullName: user.fullName,
+    });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+}
+
 module.exports = {
   register,
   login,
+  getCurrentUser,
 };
