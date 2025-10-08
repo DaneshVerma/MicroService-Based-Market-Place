@@ -162,9 +162,87 @@ async function logout(req, res) {
   }
 }
 
+// Address handlers
+async function getAddresses(req, res) {
+  try {
+    console.log("getAddresses called for", req.user && req.user.id);
+    const user = await User.findById(req.user.id).select("addresses");
+    console.log("getAddresses found user?", !!user);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    console.log("getAddresses returning", user.addresses.length);
+    return res.status(200).json({ addresses: user.addresses });
+  } catch (error) {
+    console.log("getAddresses error", error.message);
+    return res.status(400).json({ message: error.message });
+  }
+}
+
+async function addAddress(req, res) {
+  console.log("addAddress called", {
+    user: req.user && req.user.id,
+    body: req.body,
+  });
+  try {
+    const { street, city, state, zip, country, pincode, phone, isDefault } =
+      req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // if isDefault, unset existing defaults
+    if (isDefault) {
+      user.addresses.forEach((a) => (a.isDefault = false));
+    }
+
+    const addr = {
+      street,
+      city,
+      state,
+      zip,
+      country,
+      pincode,
+      phone,
+      isDefault: !!isDefault,
+    };
+    user.addresses.push(addr);
+    await user.save();
+
+    const created = user.addresses[user.addresses.length - 1];
+    console.log("addAddress returning created id", created._id);
+    return res.status(201).json({ address: created });
+  } catch (error) {
+    console.log("addAddress error", error.message);
+    return res.status(400).json({ message: error.message });
+  }
+}
+
+async function deleteAddress(req, res) {
+  try {
+    const { addressId } = req.params;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    const before = user.addresses.length;
+    user.addresses = user.addresses.filter(
+      (a) => String(a._id) !== String(addressId)
+    );
+    if (user.addresses.length === before) {
+      console.log("deleteAddress: address not found");
+      return res.status(404).json({ message: "Address not found" });
+    }
+    await user.save();
+    console.log("deleteAddress: removed, remaining", user.addresses.length);
+    return res.status(200).json({ message: "Address removed" });
+  } catch (error) {
+    console.log("deleteAddress error", error.message);
+    return res.status(400).json({ message: error.message });
+  }
+}
+
 module.exports = {
   register,
   login,
   getCurrentUser,
   logout,
+  getAddresses,
+  addAddress,
+  deleteAddress,
 };

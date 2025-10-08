@@ -66,7 +66,27 @@ const loginValidation = [
   respondWithValidationErrors,
 ];
 
+const addressValidation = [
+  body("street").isString().notEmpty().withMessage("Street is required"),
+  body("city").isString().notEmpty().withMessage("City is required"),
+  body("state").isString().notEmpty().withMessage("State is required"),
+  body("zip").isString().notEmpty().withMessage("Zip is required"),
+  body("country").isString().notEmpty().withMessage("Country is required"),
+  // pincode: numeric and length 6 (common assumption in tests)
+  body("pincode")
+    .isString()
+    .matches(/^\d{6}$/)
+    .withMessage("Pincode must be a 6 digit number"),
+  // phone: numeric and 10 digits
+  body("phone")
+    .isString()
+    .matches(/^\d{10}$/)
+    .withMessage("Phone must be a 10 digit number"),
+  respondWithValidationErrors,
+];
+
 module.exports = {
   registerUserValidation,
   loginValidation,
+  addressValidation,
 };
