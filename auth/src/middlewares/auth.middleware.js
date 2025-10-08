@@ -1,11 +1,21 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/environments");
+const redis = require("../db/redis.db");
+
 const authMiddleware = (req, res, next) => {
   try {
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
     if (!token) {
       return res.status(401).json({ message: "No token provided" });
     }
+    redis.get(`blacklist_marketPlace_token:${token}`, (err, reply) => {
+      if (err) {
+        return res.status(500).json({ message: "Internal server error" });
+      }
+      if (reply) {
+        return res.status(401).json({ message: "Token is blacklisted" });
+      }
+    });
     jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
       if (err) {
         if (err.name === "TokenExpiredError") {
@@ -17,7 +27,6 @@ const authMiddleware = (req, res, next) => {
       next();
     });
   } catch (error) {
-    
     return res.status(401).json({ message: "Unauthorized" });
   }
 };

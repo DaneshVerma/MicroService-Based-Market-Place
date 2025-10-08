@@ -3,6 +3,7 @@ const {
   register,
   login,
   getCurrentUser,
+  logout,
 } = require("../controllers/auth.controller");
 const {
   registerUserValidation,
@@ -15,5 +16,7 @@ const router = express.Router();
 router.post("/register", registerUserValidation, register);
 router.post("/login", loginValidation, login);
 router.get("/me", authMiddleware, getCurrentUser);
+router.get("/logout", logout);
 
 module.exports = router;
+  

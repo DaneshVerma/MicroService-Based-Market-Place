@@ -1,6 +1,6 @@
 const { MongoMemoryServer } = require("mongodb-memory-server");
 const mongoose = require("mongoose");
-
+const redis = require("../src/db/redis.db");
 let mongoServer;
 
 beforeAll(async () => {
@@ -22,4 +22,5 @@ afterAll(async () => {
   if (mongoServer) {
     await mongoServer.stop();
   }
+  await redis.quit();
 });
