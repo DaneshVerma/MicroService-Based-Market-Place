@@ -149,9 +149,14 @@ async function logout(req, res) {
         "EX",
         24 * 60 * 60
       );
-      res.clearCookie("token");
-      return res.status(200).json({ message: "Logout successful" });
     }
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      expires: new Date(0),
+    });
+    return res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }

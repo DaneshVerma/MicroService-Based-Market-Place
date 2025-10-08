@@ -33,15 +33,13 @@ describe("POST /api/auth/logout", () => {
     );
 
     // Verify cookie was cleared
-    const cookies = response.headers["set-cookie"][0].split(";");
-    expect(cookies[0]).toContain("token=");
-    expect(cookies[1]).toContain("Expires=Thu, 01 Jan 1970 00:00:00 GMT");
+    const cookieHeader = response.headers["set-cookie"][0];
+    expect(cookieHeader).toContain("token=");
+    expect(cookieHeader.toLowerCase()).toContain("expires=thu, 01 jan 1970");
   });
 
   it("should handle logout without a token", async () => {
-    const response = await request(app)
-      .post("/api/auth/logout")
-      .expect(200);
+    const response = await request(app).post("/api/auth/logout").expect(200);
 
     expect(response.body).toEqual({
       message: "Logout successful",
