@@ -1,12 +1,13 @@
 const Product = require("../models/product.model");
-const uploadImages  = require("../utils/imagekit.service.js");
-
+const uploadImages = require("../services/imagekit.service.js");
 
 async function createProduct(req, res) {
   try {
     const { name, description, priceAmount, PriceCurrency = "INR" } = req.body;
-    if (!title || !price) {
-      return res.status(400).json({ message: "Title and Price are required" });
+    if (!name || !description || !priceAmount) {
+      return res
+        .status(400)
+        .json({ message: "Name, description and price are required" });
     }
     const seller = req.user.id;
 
@@ -15,7 +16,7 @@ async function createProduct(req, res) {
       currency: PriceCurrency,
     };
     const images = [];
-    const files = await promise.all(
+    await Promise.all(
       req.files.map(async (file) => {
         const imageUrl = await uploadImages({
           buffer: file.buffer,
@@ -24,7 +25,19 @@ async function createProduct(req, res) {
         images.push(imageUrl);
       })
     );
-    
-
-  } catch (error) {}
+    const product = await Product.create({
+      name,
+      description,
+      price,
+      images,
+      seller,
+    });
+    return res.status(201).json(product);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
 }
+
+module.exports = {
+  createProduct,
+};

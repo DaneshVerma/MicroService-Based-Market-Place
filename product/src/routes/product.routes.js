@@ -2,14 +2,23 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const createAuthMiddleware = require("../middlewares/auth.middleware");
+const { validateProduct, validateImages } = require("../middlewares/validators/product.validator");
+const { createProduct } = require("../controller/product.controller");
 
-const upload = multer({ dest: "uploads/" });
-const { createProduct } = require("../controllers/product.controller");
+const upload = multer({ 
+    dest: "uploads/",
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+        files: 5 
+    } 
+});
 
 router.post(
   "/",
   upload.array("images", 5),
   createAuthMiddleware(["admin", "seller"]),
+  validateProduct,
+  validateImages,
   createProduct
 );
 
