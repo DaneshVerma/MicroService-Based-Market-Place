@@ -153,10 +153,22 @@ async function deleteProduct(req, res) {
   }
 }
 
+async function getProductsBySeller(req, res) { 
+  const seller = req.user
+  const {skip = 0, limit = 20} = req.query
+  try { 
+    const products = await productModel.find({seller:seller.id}).skip(Number(skip)).limit(Math.min(Number(limit), 20));
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 module.exports = {
   createProduct,
   getProducts,
   getProductById,
   updateProduct,
-  deleteProduct,
+  deleteProduct, 
+  getProductsBySeller,
 };

@@ -12,6 +12,7 @@ const {
   getProductById,
   updateProduct,
   deleteProduct,
+  getProductsBySeller,
 } = require("../controller/product.controller");
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -27,10 +28,12 @@ router.post(
 
 router.get("/", getProducts);
 
-router.get("/:id", getProductById);
-
 router.patch("/:id", createAuthMiddleware(["admin", "seller"]), updateProduct);
 
 router.delete("/:id", createAuthMiddleware(["admin", "seller"]), deleteProduct);
+
+router.get("/seller", createAuthMiddleware(["seller"]), getProductsBySeller);
+
+router.get("/:id", getProductById);
 
 module.exports = router;
