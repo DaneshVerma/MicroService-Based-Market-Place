@@ -27,7 +27,7 @@ const productSchema = new mongoose.Schema({
     {
       url: String,
       thumbnail: String,
-      id: String,
+      fileId: String,
     },
   ],
 });

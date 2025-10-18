@@ -1,5 +1,8 @@
 const productModel = require("../models/product.model");
-const uploadImages = require("../services/imagekit.service.js");
+const {
+  uploadImages,
+  deleteImage,
+} = require("../services/imagekit.service.js");
 const mongoose = require("mongoose");
 
 async function createProduct(req, res) {
@@ -18,11 +21,15 @@ async function createProduct(req, res) {
     const images = [];
     await Promise.all(
       req.files.map(async (file) => {
-        const imageUrl = await uploadImages({
+        const imageData = await uploadImages({
           buffer: file.buffer,
           filename: file.originalname,
         });
-        images.push(imageUrl);
+        images.push({
+          url: imageData.url,
+          thumbnail: imageData.thumbnailUrl,
+          fileId: imageData.fileId,
+        });
       })
     );
     const product = await productModel.create({
@@ -99,7 +106,6 @@ async function updateProduct(req, res) {
         if (key === "price" && typeof req.body[key] === "object") {
           const { amount, currency } = req.body[key];
           if (amount) {
-            console.log("Amount to update:", amount);
             product.price.amount = Number(amount);
           }
           if (currency) {
@@ -116,9 +122,41 @@ async function updateProduct(req, res) {
     res.status(500).json({ message: error.message });
   }
 }
+
+async function deleteProduct(req, res) {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid product ID" });
+  }
+  try {
+    const product = await productModel.findOne({
+      _id: id,
+      seller: req.user.id,
+    });
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    if (product.seller.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to delete this product" });
+    }
+    Promise.all(
+      product.images.map(async (image) => {
+        await deleteImage(image.fileId);
+      })
+    );
+    await productModel.deleteOne({ _id: id });
+    res.status(200).json({ message: "Product deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 module.exports = {
   createProduct,
   getProducts,
   getProductById,
   updateProduct,
+  deleteProduct,
 };

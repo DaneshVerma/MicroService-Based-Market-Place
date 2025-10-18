@@ -26,4 +26,15 @@ async function uploadImages({ buffer, filename, folder = "/products" }) {
   }
 }
 
-module.exports = uploadImages;
+async function deleteImage(fileId) {
+  try {
+    const response = await imagekit.deleteFile(fileId);
+    return response;
+  } catch (error) {
+    console.error("Error deleting image from ImageKit:", error);
+  }
+}
+module.exports = {
+  uploadImages,
+  deleteImage,
+};
