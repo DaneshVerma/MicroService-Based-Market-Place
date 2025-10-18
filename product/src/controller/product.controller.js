@@ -3,17 +3,17 @@ const uploadImages = require("../services/imagekit.service.js");
 
 async function createProduct(req, res) {
   try {
-    const { name, description, priceAmount, PriceCurrency = "INR" } = req.body;
-    if (!name || !description || !priceAmount) {
+    const { title, description, priceAmount, priceCurrency = "INR" } = req.body;
+    if (!title || !description || !priceAmount) {
       return res
         .status(400)
-        .json({ message: "Name, description and price are required" });
+        .json({ message: "Title, description and price are required" });
     }
     const seller = req.user.id;
-
+    console.log("Seller ID:", seller);
     const price = {
       amount: Number(priceAmount),
-      currency: PriceCurrency,
+      currency: priceCurrency,
     };
     const images = [];
     await Promise.all(
@@ -26,7 +26,7 @@ async function createProduct(req, res) {
       })
     );
     const product = await Product.create({
-      name,
+      title,
       description,
       price,
       images,
@@ -34,6 +34,7 @@ async function createProduct(req, res) {
     });
     return res.status(201).json(product);
   } catch (error) {
+    console.error("Error creating product:", error);
     return res.status(500).json({ message: error.message });
   }
 }

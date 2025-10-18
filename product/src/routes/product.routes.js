@@ -2,16 +2,13 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const createAuthMiddleware = require("../middlewares/auth.middleware");
-const { validateProduct, validateImages } = require("../middlewares/validators/product.validator");
+const {
+  validateProduct,
+  validateImages,
+} = require("../middlewares/validators/product.validator");
 const { createProduct } = require("../controller/product.controller");
 
-const upload = multer({ 
-    dest: "uploads/",
-    limits: {
-        fileSize: 5 * 1024 * 1024,
-        files: 5 
-    } 
-});
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.post(
   "/",

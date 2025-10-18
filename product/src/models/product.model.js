@@ -9,7 +9,7 @@ const productSchema = new mongoose.Schema({
     type: String,
   },
   price: {
-    ammount: {
+    amount: {
       type: Number,
       required: true,
     },
@@ -18,18 +18,18 @@ const productSchema = new mongoose.Schema({
       enum: ["USD", "INR"],
       default: "INR",
     },
-    seller: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
-    images: [
-      {
-        url: String,
-        thumbnail: String,
-        id: String,
-      },
-    ],
   },
+  seller: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  images: [
+    {
+      url: String,
+      thumbnail: String,
+      id: String,
+    },
+  ],
 });
 
 module.exports = mongoose.model("product", productSchema);
