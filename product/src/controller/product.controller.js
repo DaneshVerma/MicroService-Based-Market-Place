@@ -1,4 +1,4 @@
-const Product = require("../models/product.model");
+const productModel = require("../models/product.model");
 const uploadImages = require("../services/imagekit.service.js");
 
 async function createProduct(req, res) {
@@ -10,7 +10,6 @@ async function createProduct(req, res) {
         .json({ message: "Title, description and price are required" });
     }
     const seller = req.user.id;
-    console.log("Seller ID:", seller);
     const price = {
       amount: Number(priceAmount),
       currency: priceCurrency,
@@ -25,7 +24,7 @@ async function createProduct(req, res) {
         images.push(imageUrl);
       })
     );
-    const product = await Product.create({
+    const product = await productModel.create({
       title,
       description,
       price,
@@ -38,7 +37,34 @@ async function createProduct(req, res) {
     return res.status(500).json({ message: error.message });
   }
 }
+async function getProducts(req, res) {
+  try {
+    const { q, minPrice, maxPrice, skip = 0, limit = 20 } = req.query;
+    const filter = {};
+    if (q) {
+      filter.$text = { $search: q };
+    }
+    if (minPrice) {
+      filter["price.amount"] = {
+        ...filter["price.amount"],
+        $gte: Number(minPrice),
+      };
+    }
+    if (maxPrice) {
+      filter["price.amount"] = {
+        ...filter["price.amount"],
+        $lte: Number(maxPrice),
+      };
+    }
+    const products = await productModel.find(filter).skip(skip).limit(limit);
+    return res.status(200).json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return res.status(500).json({ message: error.message });
+  }
+}
 
 module.exports = {
   createProduct,
+  getProducts,
 };
