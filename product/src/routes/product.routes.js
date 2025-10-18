@@ -6,7 +6,12 @@ const {
   validateProduct,
   validateImages,
 } = require("../middlewares/validators/product.validator");
-const { createProduct, getProducts } = require("../controller/product.controller");
+const {
+  createProduct,
+  getProducts,
+  getProductById,
+  updateProduct,
+} = require("../controller/product.controller");
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -20,5 +25,9 @@ router.post(
 );
 
 router.get("/", getProducts);
+
+router.get("/:id", getProductById);
+
+router.patch("/:id", createAuthMiddleware(["admin", "seller"]),updateProduct);
 
 module.exports = router;

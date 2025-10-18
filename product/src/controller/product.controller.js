@@ -1,5 +1,6 @@
 const productModel = require("../models/product.model");
 const uploadImages = require("../services/imagekit.service.js");
+const mongoose = require("mongoose");
 
 async function createProduct(req, res) {
   try {
@@ -64,7 +65,60 @@ async function getProducts(req, res) {
   }
 }
 
+async function getProductById(req, res) {
+  try {
+    const { id } = req.params;
+    const product = await productModel.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+async function updateProduct(req, res) {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+    const product = await productModel.findOne({
+      _id: id,
+      seller: req.user.id,
+    });
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found ",
+      });
+    }
+    const allowedUpdates = ["title", "description", "price"];
+    for (const key of Object.keys(req.body)) {
+      if (allowedUpdates.includes(key)) {
+        if (key === "price" && typeof req.body[key] === "object") {
+          const { amount, currency } = req.body[key];
+          if (amount) {
+            console.log("Amount to update:", amount);
+            product.price.amount = Number(amount);
+          }
+          if (currency) {
+            product.price.currency = currency;
+          }
+        } else {
+          product[key] = req.body[key];
+        }
+      }
+    }
+    await product.save();
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
 module.exports = {
   createProduct,
   getProducts,
+  getProductById,
+  updateProduct,
 };
