@@ -3,6 +3,8 @@ const cartController = require("../controllers/cart.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const validation = require("../middlewares/validation.middleware");
 
+router.get('/', authMiddleware(["user"]), cartController.getCart)
+
 router.post(
   "/items",
   validation.validateAddIeItemToCart,

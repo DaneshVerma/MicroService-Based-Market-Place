@@ -1,5 +1,22 @@
 const cartModel = require("../models/cart.model");
 
+async function getCart(req, res) {
+  const user = req.user;
+
+  let cart = await cartModel.findOne({ user: user._id });
+  if (!cart) {
+    cart = new cartModel({ user: user._id, items: [] });
+    await cart.save();
+  }
+  res.status(200).json({
+    cart,
+    totals: {
+      itemCount: cart.items.length,
+      totalQuantity: cart.items.reduce((sum, item) => sum + item.quantity, 0),
+    },
+  });
+}
+
 async function addItemToCart(req, res) {
   const { productId, qty } = req.body;
   const user = req.user;
@@ -52,4 +69,4 @@ async function updateCartItem(req, res) {
   });
 }
 
-module.exports = { addItemToCart, updateCartItem };
+module.exports = { addItemToCart, updateCartItem, getCart };
