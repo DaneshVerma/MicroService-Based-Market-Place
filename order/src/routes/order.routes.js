@@ -18,4 +18,10 @@ router.post(
   orderController.createOrder
 );
 
+router.post(
+  "/orders/:id/cancel",
+  authMiddleware(["user"]),
+  orderController.cancelOrder
+);
+
 module.exports = router;

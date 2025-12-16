@@ -252,8 +252,57 @@ async function getOrderById(req, res) {
   }
 }
 
+async function cancelOrder(req, res) {
+  try {
+    const user = req.user;
+    const { id } = req.params;
+
+    const order = await orderModel.findById(id).exec();
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+        error: "No order found with the given ID",
+      });
+    }
+
+    // Check if user owns this order
+    if (order.user.toString() !== user.id.toString()) {
+      return res.status(403).json({
+        message: "Forbidden",
+        error: "You are not allowed to cancel this order",
+      });
+    }
+
+    // Check if order can be cancelled
+    const cancellableStatuses = ["PENDING", "CONFIRMED"];
+    if (!cancellableStatuses.includes(order.status)) {
+      return res.status(409).json({
+        message: "Cannot cancel order",
+        error: `Order cannot be cancelled in ${order.status} status`,
+      });
+    }
+
+    // Update order status to CANCELLED
+    order.status = "CANCELLED";
+    await order.save();
+
+    return res.status(200).json({
+      message: "Order cancelled successfully",
+      order: order.toObject(),
+    });
+  } catch (error) {
+    console.error("Error cancelling order:", error.message);
+    return res.status(500).json({
+      message: "Error cancelling order",
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   createOrder,
   getMyOrders,
   getOrderById,
+  cancelOrder,
 };
