@@ -8,22 +8,6 @@ async function createOrder(req, res) {
       req.cookies?.token || req.headers?.authorization?.split(" ")[1];
     const { shippingAddress } = req.body;
 
-    // Validate shipping address
-    if (
-      !shippingAddress ||
-      !shippingAddress.street ||
-      !shippingAddress.city ||
-      !shippingAddress.state ||
-      !shippingAddress.pincode ||
-      !shippingAddress.country
-    ) {
-      return res.status(400).json({
-        message:
-          "Shipping address is required with all fields (street, city, state, pincode, country)",
-        errors: ["Invalid shipping address"],
-      });
-    }
-
     // Fetch user cart from cart service
     const cartResponse = await axios.get("http://localhost:3002/api/cart", {
       headers: {
