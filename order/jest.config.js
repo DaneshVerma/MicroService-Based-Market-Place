@@ -8,5 +8,6 @@ module.exports = {
   setupFilesAfterEnv: [
     "<rootDir>/src/tests/setup/env.js",
     "<rootDir>/src/tests/setup/mongodb.js",
+    "<rootDir>/src/tests/setup/axios-mock.js",
   ],
 };

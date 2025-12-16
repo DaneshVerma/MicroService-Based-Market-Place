@@ -1,8 +1,11 @@
+const axios = require("axios");
 const orderModel = require("../models/order.model");
-const mongoose = require("mongoose");
 
 async function createOrder(req, res) {
   try {
+    const user = req.user;
+    const token =
+      req.cookies?.token || req.headers?.authorization?.split(" ")[1];
     const { shippingAddress } = req.body;
 
     // Validate shipping address
@@ -15,50 +18,79 @@ async function createOrder(req, res) {
       !shippingAddress.country
     ) {
       return res.status(400).json({
-        message: "Invalid shipping address. All fields are required.",
+        message:
+          "Shipping address is required with all fields (street, city, state, pincode, country)",
+        errors: ["Invalid shipping address"],
       });
     }
 
-    // Get user ID from auth token (assuming middleware sets req.user)
-    const userId = req.user?.id || req.user?._id;
-
-    // Mock cart items (in production, fetch from cart service)
-    const cartItems = [
-      {
-        product: new mongoose.Types.ObjectId(),
-        quantity: 2,
-        price: {
-          amount: 29.99,
-          currency: "USD",
-        },
+    // Fetch user cart from cart service
+    const cartResponse = await axios.get("http://localhost:3002/api/cart", {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-      {
-        product: new mongoose.Types.ObjectId(),
-        quantity: 1,
-        price: {
-          amount: 49.99,
-          currency: "USD",
-        },
-      },
-    ];
+    });
 
-    // Calculate total price
-    const subtotal = cartItems.reduce(
-      (sum, item) => sum + item.price.amount * item.quantity,
-      0
+    const cart = cartResponse.data.cart;
+
+    // Check if cart has items
+    if (!cart || !cart.items || cart.items.length === 0) {
+      return res.status(400).json({
+        message: "Cart is empty. Cannot create order.",
+      });
+    }
+
+    // Fetch product details with pricing from product service
+    const productIds = cart.items.map((item) => item.productId);
+    const productDetailsPromises = productIds.map((id) =>
+      axios.get(`http://localhost:3001/api/products/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
     );
-    const tax = subtotal * 0.1; // 10% tax
-    const shipping = 10; // Flat shipping
-    const totalAmount = subtotal + tax + shipping;
+
+    const productResponses = await Promise.all(productDetailsPromises);
+    const products = productResponses.map((res) => res.data);
+
+    // Build order items with pricing
+    const orderItems = cart.items.map((cartItem) => {
+      const product = products.find(
+        (p) => p._id.toString() === cartItem.productId.toString()
+      );
+
+      if (!product) {
+        throw new Error(`Product ${cartItem.productId} not found`);
+      }
+
+      return {
+        product: cartItem.productId,
+        quantity: cartItem.quantity,
+        price: {
+          amount: product.price.amount,
+          currency: product.price.currency,
+        },
+      };
+    });
+
+    // Calculate total price (subtotal + tax + shipping)
+    const subtotal = orderItems.reduce((sum, item) => {
+      return sum + item.price.amount * item.quantity;
+    }, 0);
+
+    const taxRate = 0.1; // 10% tax
+    const shippingCost = 50; // Flat shipping cost
+    const tax = subtotal * taxRate;
+    const totalAmount = subtotal + tax + shippingCost;
 
     // Create order
-    const order = await orderModel.create({
-      user: userId,
-      items: cartItems,
+    const order = new orderModel({
+      user: user.id,
+      items: orderItems,
       status: "PENDING",
       totalPrice: {
         amount: totalAmount,
-        currency: "USD",
+        currency: orderItems[0].price.currency,
       },
       shippingAddress: {
         street: shippingAddress.street,
@@ -69,15 +101,24 @@ async function createOrder(req, res) {
       },
     });
 
-    // Mock inventory reservation (in production, call inventory service)
-    const inventoryReservation = { success: true };
+    await order.save();
 
-    res.status(201).json({
+    return res.status(201).json({
+      message: "Order created successfully",
       order,
-      inventoryReservation,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("Error creating order:", error.message);
+
+    // Handle specific errors
+    if (error.response) {
+      return res.status(error.response.status || 500).json({
+        message: "Error creating order",
+        error: error.response.data?.message || error.message,
+      });
+    }
+
+    return res.status(500).json({
       message: "Error creating order",
       error: error.message,
     });
