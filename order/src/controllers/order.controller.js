@@ -109,6 +109,39 @@ async function createOrder(req, res) {
   }
 }
 
+async function getMyOrders(req, res) {
+  const user = req.user;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
+
+  try {
+    const orders = await orderModel
+      .find({ user: user.id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+    const totalOrders = await orderModel.countDocuments({ user: user.id });
+
+    return res.status(200).json({
+      orders,
+      meta: {
+        total: totalOrders,
+        page,
+        limit,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching user orders:", error.message);
+    return res.status(500).json({
+      message: "Error fetching user orders",
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   createOrder,
+  getMyOrders,
 };

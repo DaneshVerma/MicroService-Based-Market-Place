@@ -3,6 +3,8 @@ const authMiddleware = require("../middlewares/auth.middleware");
 const { validateCreateOrder } = require("../middlewares/validation.middleware");
 const orderController = require("../controllers/order.controller");
 
+router.get("/orders/me", authMiddleware(["user"]), orderController.getMyOrders);
+
 router.post(
   "/orders",
   validateCreateOrder,
