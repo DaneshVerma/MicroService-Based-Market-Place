@@ -141,7 +141,119 @@ async function getMyOrders(req, res) {
   }
 }
 
+async function getOrderById(req, res) {
+  try {
+    const user = req.user;
+    const { id } = req.params;
+
+    const order = await orderModel.findById(id).exec();
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+        error: "No order found with the given ID",
+      });
+    }
+
+    // Check if user owns this order
+    if (order.user.toString() !== user.id.toString()) {
+      return res.status(404).json({
+        message: "Order not found",
+        error: "No order found with the given ID",
+      });
+    }
+
+    // Build timeline from timestamps
+    const timeline = [
+      {
+        type: "CREATED",
+        at: order.createdAt,
+        description: "Order placed",
+      },
+    ];
+
+    // Add status-based timeline events
+    if (order.status === "CONFIRMED") {
+      timeline.push({
+        type: "CONFIRMED",
+        at: order.updatedAt,
+        description: "Order confirmed",
+      });
+    } else if (order.status === "SHIPPED") {
+      timeline.push(
+        {
+          type: "CONFIRMED",
+          at: order.updatedAt,
+          description: "Order confirmed",
+        },
+        {
+          type: "SHIPPED",
+          at: order.updatedAt,
+          description: "Order shipped",
+        }
+      );
+    } else if (order.status === "DELIVERD") {
+      timeline.push(
+        {
+          type: "CONFIRMED",
+          at: order.updatedAt,
+          description: "Order confirmed",
+        },
+        {
+          type: "SHIPPED",
+          at: order.updatedAt,
+          description: "Order shipped",
+        },
+        {
+          type: "DELIVERED",
+          at: order.updatedAt,
+          description: "Order delivered",
+        }
+      );
+    } else if (order.status === "CANCELLED") {
+      timeline.push({
+        type: "CANCELLED",
+        at: order.updatedAt,
+        description: "Order cancelled",
+      });
+    }
+
+    // Calculate payment summary
+    const subtotal = order.items.reduce((sum, item) => {
+      return sum + item.price.amount * item.quantity;
+    }, 0);
+
+    const taxRate = 0.1;
+    const shippingCost = 50;
+    const taxes = subtotal * taxRate;
+    const total = order.totalPrice.amount;
+
+    const paymentSummary = {
+      subtotal,
+      taxes,
+      shipping: shippingCost,
+      total,
+      currency: order.totalPrice.currency,
+    };
+
+    return res.status(200).json({
+      order: {
+        ...order.toObject(),
+        timeline,
+        paymentSummary,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching order:", error.message);
+    return res.status(500).json({
+      message: "Error fetching order",
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   createOrder,
   getMyOrders,
+  getOrderById,
 };
