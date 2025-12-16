@@ -23,4 +23,33 @@ async function addItemToCart(req, res) {
     cart,
   });
 }
-module.exports = { addItemToCart };
+
+async function updateCartItem(req, res) {
+  const { productId } = req.params;
+  const { qty } = req.body;
+  const user = req.user;
+
+  const cart = await cartModel.findOne({ user: user._id });
+
+  if (!cart) {
+    return res.status(404).json({ message: "Cart not found" });
+  }
+
+  const itemIndex = cart.items.findIndex(
+    (item) => item.productId.toString() === productId
+  );
+
+  if (itemIndex === -1) {
+    return res.status(404).json({ message: "Item not found" });
+  }
+
+  cart.items[itemIndex].quantity = qty;
+  await cart.save();
+
+  res.status(200).json({
+    message: "Item updated",
+    cart,
+  });
+}
+
+module.exports = { addItemToCart, updateCartItem };

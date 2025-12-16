@@ -10,4 +10,11 @@ router.post(
   cartController.addItemToCart
 );
 
+router.patch(
+  "/items/:productId",
+  validation.validateUpdateCartItem,
+  authMiddleware(["user"]),
+  cartController.updateCartItem
+);
+
 module.exports = router;
