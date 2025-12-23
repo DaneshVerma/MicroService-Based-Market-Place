@@ -1,130 +1,104 @@
-const axios = require("axios");
+const { promises } = require("supertest/lib/test");
 const orderModel = require("../models/order.model");
+const axios = require("axios");
+const { publishToQueue } = require("../broker/borker");
 
 async function createOrder(req, res) {
-  try {
-    const user = req.user;
-    const token =
-      req.cookies?.token || req.headers?.authorization?.split(" ")[1];
-    const { shippingAddress } = req.body;
+  const user = req.user;
+  const token = req.cookies?.token || req.headers?.authorization?.split(" ")[1];
 
-    // Fetch user cart from cart service
-    const cartResponse = await axios.get("http://localhost:3002/api/cart", {
+  try {
+    // fetch user cart from cart service
+    const cartResponse = await axios.get(`http://localhost:30002/api/cart`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    const cart = cartResponse.data.cart;
-
-    // Check if cart has items
-    if (!cart || !cart.items || cart.items.length === 0) {
-      return res.status(400).json({
-        message: "Cart is empty. Cannot create order.",
-      });
-    }
-
-    // Fetch product details with pricing from product service
-    const productIds = cart.items.map((item) => item.productId);
-    const productDetailsPromises = productIds.map((id) =>
-      axios.get(`http://localhost:3001/api/products/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const products = await Promise.all(
+      cartResponse.data.cart.items.map(async (item) => {
+        return (
+          await axios.get(
+            `http://localhost:30002/api/products/${item.productId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+        ).data.data;
       })
     );
 
-    const productResponses = await Promise.all(productDetailsPromises);
-    const products = productResponses.map((res) => res.data);
+    let priceAmount = 0;
 
-    // Build order items with pricing
-    const orderItems = cart.items.map((cartItem) => {
-      const product = products.find(
-        (p) => p._id.toString() === cartItem.productId.toString()
-      );
+    const orderItems = cartResponse.data.cart.items.map((item, index) => {
+      const product = products.find((p) => p._id === item.productId);
 
-      if (!product) {
-        throw new Error(`Product ${cartItem.productId} not found`);
+      // if not in stock, does not allow order creation
+
+      if (product.stock < item.quantity) {
+        throw new Error(
+          `Product ${product.title} is out of stock or insufficient stock`
+        );
       }
 
+      const itemTotal = product.price.amount * item.quantity;
+      priceAmount += itemTotal;
+
       return {
-        product: cartItem.productId,
-        quantity: cartItem.quantity,
+        product: item.productId,
+        quantity: item.quantity,
         price: {
-          amount: product.price.amount,
+          amount: itemTotal,
           currency: product.price.currency,
         },
       };
     });
 
-    // Calculate total price (subtotal + tax + shipping)
-    const subtotal = orderItems.reduce((sum, item) => {
-      return sum + item.price.amount * item.quantity;
-    }, 0);
-
-    const taxRate = 0.1; // 10% tax
-    const shippingCost = 50; // Flat shipping cost
-    const tax = subtotal * taxRate;
-    const totalAmount = subtotal + tax + shippingCost;
-
-    // Create order
-    const order = new orderModel({
+    const order = await orderModel.create({
       user: user.id,
       items: orderItems,
       status: "PENDING",
       totalPrice: {
-        amount: totalAmount,
-        currency: orderItems[0].price.currency,
+        amount: priceAmount,
+        currency: "INR", // assuming all products are in USD for simplicity
       },
       shippingAddress: {
-        street: shippingAddress.street,
-        city: shippingAddress.city,
-        state: shippingAddress.state,
-        zip: shippingAddress.pincode,
-        country: shippingAddress.country,
+        street: req.body.shippingAddress.street,
+        city: req.body.shippingAddress.city,
+        state: req.body.shippingAddress.state,
+        zip: req.body.shippingAddress.pincode,
+        country: req.body.shippingAddress.country,
       },
     });
 
-    await order.save();
+    await publishToQueue("ORDER_SELLER_DASHBOARD.ORDER_CREATED", order);
 
-    return res.status(201).json({
-      message: "Order created successfully",
-      order,
-    });
-  } catch (error) {
-    console.error("Error creating order:", error.message);
-
-    // Handle specific errors
-    if (error.response) {
-      return res.status(error.response.status || 500).json({
-        message: "Error creating order",
-        error: error.response.data?.message || error.message,
-      });
-    }
-
-    return res.status(500).json({
-      message: "Error creating order",
-      error: error.message,
-    });
+    res.status(201).json({ order });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: err.message });
   }
 }
 
 async function getMyOrders(req, res) {
   const user = req.user;
+
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 20;
+  const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
   try {
     const orders = await orderModel
       .find({ user: user.id })
-      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .exec();
     const totalOrders = await orderModel.countDocuments({ user: user.id });
 
-    return res.status(200).json({
+    res.status(200).json({
       orders,
       meta: {
         total: totalOrders,
@@ -132,171 +106,114 @@ async function getMyOrders(req, res) {
         limit,
       },
     });
-  } catch (error) {
-    console.error("Error fetching user orders:", error.message);
-    return res.status(500).json({
-      message: "Error fetching user orders",
-      error: error.message,
-    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: err.message });
   }
 }
 
 async function getOrderById(req, res) {
-  try {
-    const user = req.user;
-    const { id } = req.params;
+  const user = req.user;
+  const orderId = req.params.id;
 
-    const order = await orderModel.findById(id).exec();
+  try {
+    const order = await orderModel.findById(orderId);
 
     if (!order) {
-      return res.status(404).json({
-        message: "Order not found",
-        error: "No order found with the given ID",
-      });
+      return res.status(404).json({ message: "Order not found" });
     }
 
-    // Check if user owns this order
-    if (order.user.toString() !== user.id.toString()) {
-      return res.status(404).json({
-        message: "Order not found",
-        error: "No order found with the given ID",
-      });
+    if (order.user.toString() !== user.id) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: You do not have access to this order" });
     }
 
-    // Build timeline from timestamps
-    const timeline = [
-      {
-        type: "CREATED",
-        at: order.createdAt,
-        description: "Order placed",
-      },
-    ];
-
-    // Add status-based timeline events
-    if (order.status === "CONFIRMED") {
-      timeline.push({
-        type: "CONFIRMED",
-        at: order.updatedAt,
-        description: "Order confirmed",
-      });
-    } else if (order.status === "SHIPPED") {
-      timeline.push(
-        {
-          type: "CONFIRMED",
-          at: order.updatedAt,
-          description: "Order confirmed",
-        },
-        {
-          type: "SHIPPED",
-          at: order.updatedAt,
-          description: "Order shipped",
-        }
-      );
-    } else if (order.status === "DELIVERD") {
-      timeline.push(
-        {
-          type: "CONFIRMED",
-          at: order.updatedAt,
-          description: "Order confirmed",
-        },
-        {
-          type: "SHIPPED",
-          at: order.updatedAt,
-          description: "Order shipped",
-        },
-        {
-          type: "DELIVERED",
-          at: order.updatedAt,
-          description: "Order delivered",
-        }
-      );
-    } else if (order.status === "CANCELLED") {
-      timeline.push({
-        type: "CANCELLED",
-        at: order.updatedAt,
-        description: "Order cancelled",
-      });
-    }
-
-    // Calculate payment summary
-    const subtotal = order.items.reduce((sum, item) => {
-      return sum + item.price.amount * item.quantity;
-    }, 0);
-
-    const taxRate = 0.1;
-    const shippingCost = 50;
-    const taxes = subtotal * taxRate;
-    const total = order.totalPrice.amount;
-
-    const paymentSummary = {
-      subtotal,
-      taxes,
-      shipping: shippingCost,
-      total,
-      currency: order.totalPrice.currency,
-    };
-
-    return res.status(200).json({
-      order: {
-        ...order.toObject(),
-        timeline,
-        paymentSummary,
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching order:", error.message);
-    return res.status(500).json({
-      message: "Error fetching order",
-      error: error.message,
-    });
+    res.status(200).json({ order });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: err.message });
   }
 }
 
-async function cancelOrder(req, res) {
-  try {
-    const user = req.user;
-    const { id } = req.params;
+async function cancelOrderById(req, res) {
+  const user = req.user;
+  const orderId = req.params.id;
 
-    const order = await orderModel.findById(id).exec();
+  try {
+    const order = await orderModel.findById(orderId);
 
     if (!order) {
-      return res.status(404).json({
-        message: "Order not found",
-        error: "No order found with the given ID",
-      });
+      return res.status(404).json({ message: "Order not found" });
     }
 
-    // Check if user owns this order
-    if (order.user.toString() !== user.id.toString()) {
-      return res.status(403).json({
-        message: "Forbidden",
-        error: "You are not allowed to cancel this order",
-      });
+    if (order.user.toString() !== user.id) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: You do not have access to this order" });
     }
 
-    // Check if order can be cancelled
-    const cancellableStatuses = ["PENDING", "CONFIRMED"];
-    if (!cancellableStatuses.includes(order.status)) {
-      return res.status(409).json({
-        message: "Cannot cancel order",
-        error: `Order cannot be cancelled in ${order.status} status`,
-      });
+    // only PENDING orders can be cancelled
+    if (order.status !== "PENDING") {
+      return res
+        .status(409)
+        .json({ message: "Order cannot be cancelled at this stage" });
     }
 
-    // Update order status to CANCELLED
     order.status = "CANCELLED";
     await order.save();
 
-    return res.status(200).json({
-      message: "Order cancelled successfully",
-      order: order.toObject(),
-    });
-  } catch (error) {
-    console.error("Error cancelling order:", error.message);
-    return res.status(500).json({
-      message: "Error cancelling order",
-      error: error.message,
-    });
+    res.status(200).json({ order });
+  } catch (err) {
+    console.error(err);
+
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: err.message });
+  }
+}
+
+async function updateOrderAddress(req, res) {
+  const user = req.user;
+  const orderId = req.params.id;
+
+  try {
+    const order = await orderModel.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.user.toString() !== user.id) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: You do not have access to this order" });
+    }
+
+    // only PENDING orders can have address updated
+    if (order.status !== "PENDING") {
+      return res
+        .status(409)
+        .json({ message: "Order address cannot be updated at this stage" });
+    }
+
+    order.shippingAddress = {
+      street: req.body.shippingAddress.street,
+      city: req.body.shippingAddress.city,
+      state: req.body.shippingAddress.state,
+      zip: req.body.shippingAddress.pincode,
+      country: req.body.shippingAddress.country,
+    };
+
+    await order.save();
+
+    res.status(200).json({ order });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: err.message });
   }
 }
 
@@ -304,5 +221,6 @@ module.exports = {
   createOrder,
   getMyOrders,
   getOrderById,
-  cancelOrder,
+  cancelOrderById,
+  updateOrderAddress,
 };

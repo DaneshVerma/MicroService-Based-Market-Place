@@ -1,27 +1,21 @@
-const router = require("express").Router();
-const authMiddleware = require("../middlewares/auth.middleware");
-const { validateCreateOrder } = require("../middlewares/validation.middleware");
-const orderController = require("../controllers/order.controller");
+const express = require("express")
+const createAuthMiddleware = require("../middlewares/auth.middleware")
+const orderController = require("../controllers/order.controller")
+const validation = require("../middlewares/validation.middleware")
 
-router.get("/orders/me", authMiddleware(["user"]), orderController.getMyOrders);
 
-router.get(
-  "/orders/:id",
-  authMiddleware(["user"]),
-  orderController.getOrderById
-);
+const router = express.Router()
 
-router.post(
-  "/orders",
-  validateCreateOrder,
-  authMiddleware(["user"]),
-  orderController.createOrder
-);
 
-router.post(
-  "/orders/:id/cancel",
-  authMiddleware(["user"]),
-  orderController.cancelOrder
-);
+router.post("/", createAuthMiddleware([ "user" ]), validation.createOrderValidation, orderController.createOrder)
+
+
+router.get("/me", createAuthMiddleware([ "user" ]), orderController.getMyOrders)
+
+router.post("/:id/cancel", createAuthMiddleware([ "user" ]), orderController.cancelOrderById)
+
+router.patch("/:id/address", createAuthMiddleware([ "user" ]), validation.updateAddressValidation, orderController.updateOrderAddress)
+
+router.get("/:id", createAuthMiddleware([ "user", "admin" ]), orderController.getOrderById)
 
 module.exports = router;
