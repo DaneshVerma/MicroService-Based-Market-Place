@@ -1,6 +1,8 @@
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 const cookie = require("cookie");
+
+
 async function initSocketServer(httpServer) {
   const io = new Server(httpServer, {});
 
@@ -14,7 +16,9 @@ async function initSocketServer(httpServer) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       socket.user = decoded;
-    } catch (err) {}
+    } catch (err) {
+      return next(new Error("Authentication error: Invalid Token"));
+    }
   });
 
   io.on("connection", (socket) => {
