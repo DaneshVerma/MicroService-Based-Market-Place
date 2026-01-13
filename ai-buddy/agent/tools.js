@@ -15,7 +15,7 @@ const searchProduct = tool(async ({ query, token }) => {
 }, {
     name: "searchProduct",
     description: "Search for products based on a query .",
-    inputSchema: z.object({
+    schema: z.object({
         query: z.string().describe("The search query for the product."),
         token: z.string().optional().describe("Auth token"),
     }),
@@ -37,7 +37,7 @@ const addProductToCart = tool(async ({ productId, quantity, token }) => {
     name: "addProductToCart",
 
     description: "Add a product to the shopping cart.",
-    inputSchema: z.object({
+    schema: z.object({
         productId: z.string().describe("The ID of the product to add to the cart."),
         quantity: z.number().describe("The quantity of the product to add.").default(1),
         token: z.string().optional().describe("Auth token"),

@@ -22,7 +22,7 @@ const graph = new StateGraph(MessagesAnnotation)
             }
             const toolInput = call.args
 
-            const toolResult = await tool.invoke({ ...toolInput, token: config.configurable?.token })
+            const toolResult = await tool.func({ ...toolInput, token: config.configurable?.token })
 
             return new ToolMessage({
                 tool_call_id: call.id,
@@ -34,7 +34,6 @@ const graph = new StateGraph(MessagesAnnotation)
     })
     .addNode("chat", async (state, config) => {
         const response = await model.invoke(state.messages, { tools: [tools.searchProduct, tools.addProductToCart] });
-
         return { messages: [response] };
     })
     .addEdge("__start__", "chat")
