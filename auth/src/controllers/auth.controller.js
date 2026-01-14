@@ -34,7 +34,7 @@ async function register(req, res) {
     });
 
     // Publish user created event to message broker (rabbitmq)
-    await publishToQueue("auth_notification_user_created", { userId: user._id, email: user.email, username: user.username, fullName: `${user.fullName.firstName} ${user.fullName.lastName}` });
+    await publishToQueue("AUTH_NOTIFICATION_USER_CREATED", { userId: user._id, email: user.email, username: user.username, fullName: `${user.fullName.firstName} ${user.fullName.lastName}` });
 
 
     const token = jwt.sign(

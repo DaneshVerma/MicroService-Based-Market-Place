@@ -1,5 +1,6 @@
 const paymentModel = require("../models/payment.model");
 const axios = require("axios");
+const { publishToQueue } = require("../broker/broker");
 
 require("dotenv").config();
 const Razorpay = require("razorpay");
@@ -17,7 +18,7 @@ async function createPayment(req, res) {
 
     const orderResponse = await axios.get(
       "http://nova-alb-551701734.ap-northeast-3.elb.amazonaws.com/api/orders/" +
-        orderId,
+      orderId,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -83,9 +84,25 @@ async function verifyPayment(req, res) {
 
     await payment.save();
 
+    await publishToQueue("PAYMENT_NOTIFICATION_COMPLETED", {
+      paymentId: payment._id,
+      orderId: payment.order,
+      userId: payment.user,
+      amount: payment.price.amount,
+      currency: payment.price.currency,
+      email: req.user.email
+    });
+
+
     res.status(200).json({ message: "Payment verified successfully", payment });
   } catch (err) {
     console.log(err);
+
+    await publishToQueue("PAYMENT_NOTIFICATION_FAILED", {
+      email: req.user.email,
+      orderId: razorpayOrderId,
+      paymentId: paymentId
+    });
 
     return res.status(500).json({ message: "Internal Server Error" });
   }
