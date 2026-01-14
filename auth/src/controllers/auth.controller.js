@@ -21,7 +21,9 @@ async function register(req, res) {
     if (isUserAlreadyExists) {
       return res.status(409).json({ message: "User already exists" });
     }
+
     const hashedPassword = await bcryptjs.hash(password, 10);
+
     const user = await User.create({
       username,
       email,
@@ -31,7 +33,10 @@ async function register(req, res) {
       addresses,
     });
 
+    // Publish user created event to message broker (rabbitmq)
     await publishToQueue("auth_notification_user_created", { userId: user._id, email: user.email, username: user.username, fullName: `${user.fullName.firstName} ${user.fullName.lastName}` });
+
+
     const token = jwt.sign(
       {
         id: user._id,
@@ -44,12 +49,14 @@ async function register(req, res) {
         expiresIn: "1d",
       }
     );
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
       maxAge: 24 * 60 * 60 * 1000,
     });
+
     return res.status(201).json({
       message: "User created successfully",
       user: {
