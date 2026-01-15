@@ -1,3 +1,4 @@
+const { publishToQueue } = require("../broker/broker.js");
 const productModel = require("../models/product.model");
 const {
   uploadImages,
@@ -39,6 +40,8 @@ async function createProduct(req, res) {
       images,
       seller,
     });
+
+  await publishToQueue("PRODUCT_SELLER_DASHBOARD.PRODUCT_CREATED", product);
     return res.status(201).json(product);
   } catch (error) {
     console.error("Error creating product:", error);
