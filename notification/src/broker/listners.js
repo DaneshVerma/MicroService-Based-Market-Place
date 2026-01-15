@@ -37,5 +37,17 @@ module.exports = function () {
         sendEmail(email, 'Payment Failed', emailHtml);
     });
 
+    subscribeToQueue("PRODUCT_NOTIFICATION.PRODUCT_CREATED", async (msg) => {
+        const { productId, username, email } = JSON.parse(msg.content.toString());
+
+        const emailHtml = `
+            <h1>New Product Created!</h1>
+            <p>Dear ${username},</p>
+            <p>Your product with ID: ${productId} has been successfully created and is now live on our platform.</p>
+            <p>Thank you for being a valued seller!</p>
+        `;
+        await sendEmail(email, 'Product Created Successfully', emailHtml);
+    });
+
 
 };

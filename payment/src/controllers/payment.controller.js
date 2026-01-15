@@ -92,7 +92,8 @@ async function verifyPayment(req, res) {
       userId: payment.user,
       amount: payment.price.amount,
       currency: payment.price.currency,
-      email: req.user.email
+      email: req.user.email,
+      username: req.user.username,
     });
 
     await publishToQueue("PAYMENT_SELLER_DASHBOARD.PAYMENT_UPDATE", payment);
