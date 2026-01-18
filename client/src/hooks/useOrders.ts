@@ -1,8 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { orderService } from '@/services';
-import { useAuthStore } from '@/stores';
-import { QUERY_KEYS } from '@/config/api.config';
-import { CreateOrderRequest } from '@/types';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { orderService } from "@/services";
+import { useAuthStore } from "@/stores";
+import { QUERY_KEYS } from "@/config/api.config";
+import type { CreateOrderRequest } from "@/types";
 
 export const useOrders = (page = 1, limit = 10) => {
   const { isAuthenticated } = useAuthStore();

@@ -1,8 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authService } from '@/services';
-import { useAuthStore } from '@/stores';
-import { QUERY_KEYS } from '@/config/api.config';
-import { LoginRequest, RegisterRequest, Address } from '@/types';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { authService } from "@/services";
+import { useAuthStore } from "@/stores";
+import { QUERY_KEYS } from "@/config/api.config";
+import type { LoginRequest, RegisterRequest, Address } from "@/types";
 
 export const useLogin = () => {
   const { setAuth } = useAuthStore();
@@ -71,7 +71,8 @@ export const useAddAddress = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (address: Omit<Address, '_id'>) => authService.addAddress(address),
+    mutationFn: (address: Omit<Address, "_id">) =>
+      authService.addAddress(address),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADDRESSES });
     },

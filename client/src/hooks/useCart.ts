@@ -1,8 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { cartService } from '@/services';
-import { useCartStore, useAuthStore } from '@/stores';
-import { QUERY_KEYS } from '@/config/api.config';
-import { AddToCartRequest, UpdateCartItemRequest } from '@/types';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { cartService } from "@/services";
+import { useCartStore, useAuthStore } from "@/stores";
+import { QUERY_KEYS } from "@/config/api.config";
+import type { AddToCartRequest, UpdateCartItemRequest } from "@/types";
 
 export const useCart = () => {
   const { isAuthenticated } = useAuthStore();
@@ -41,7 +41,8 @@ export const useUpdateCartItem = () => {
   const { setCart } = useCartStore();
 
   return useMutation({
-    mutationFn: (data: UpdateCartItemRequest) => cartService.updateCartItem(data),
+    mutationFn: (data: UpdateCartItemRequest) =>
+      cartService.updateCartItem(data),
     onSuccess: (response) => {
       if (response.cart) {
         setCart(response.cart.items, response.cart.totalPrice);

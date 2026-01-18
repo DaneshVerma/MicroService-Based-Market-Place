@@ -1,4 +1,4 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG } from '@/config/api.config';
 import { useAuthStore } from '@/stores/auth.store';
 

@@ -1,7 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { productService } from '@/services';
-import { QUERY_KEYS } from '@/config/api.config';
-import { ProductFilters, CreateProductRequest, UpdateProductRequest } from '@/types';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { productService } from "@/services";
+import { QUERY_KEYS } from "@/config/api.config";
+import type {
+  ProductFilters,
+  CreateProductRequest,
+  UpdateProductRequest,
+} from "@/types";
 
 export const useProducts = (filters?: ProductFilters) => {
   return useQuery({
@@ -29,7 +33,8 @@ export const useCreateProduct = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateProductRequest) => productService.createProduct(data),
+    mutationFn: (data: CreateProductRequest) =>
+      productService.createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PRODUCTS });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_PRODUCTS });
@@ -45,7 +50,9 @@ export const useUpdateProduct = () => {
       productService.updateProduct(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PRODUCTS });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PRODUCT(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.PRODUCT(variables.id),
+      });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_PRODUCTS });
     },
   });

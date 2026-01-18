@@ -1,10 +1,10 @@
 import { productApi } from './api';
-import { 
-  Product, 
-  ProductFilters, 
-  ProductsResponse, 
-  CreateProductRequest, 
-  UpdateProductRequest 
+import type {
+    Product,
+    ProductFilters,
+    ProductsResponse,
+    CreateProductRequest,
+    UpdateProductRequest
 } from '@/types';
 
 export const productService = {

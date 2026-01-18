@@ -1,10 +1,10 @@
 import { authApi } from "./api";
-import {
-  LoginRequest,
-  RegisterRequest,
-  AuthResponse,
-  User,
-  Address,
+import type {
+    LoginRequest,
+    RegisterRequest,
+    AuthResponse,
+    User,
+    Address,
 } from "@/types";
 
 export const authService = {

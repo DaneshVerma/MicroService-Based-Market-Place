@@ -1,5 +1,5 @@
 import { cartApi } from "./api";
-import { Cart, AddToCartRequest, UpdateCartItemRequest } from "@/types";
+import type { Cart, AddToCartRequest, UpdateCartItemRequest } from "@/types";
 
 export const cartService = {
   getCart: async (): Promise<{ success: boolean; cart: Cart }> => {

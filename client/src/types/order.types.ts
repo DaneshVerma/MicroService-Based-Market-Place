@@ -1,5 +1,5 @@
-import { CartItem } from './cart.types';
-import { Address } from './auth.types';
+import type { CartItem } from './cart.types';
+import type { Address } from './auth.types';
 
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
