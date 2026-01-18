@@ -1,14 +1,13 @@
 const { body, validationResult } = require('express-validator');
 
 
-
 const respondWithValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
     next();
-}
+};
 
 const createOrderValidation = [
     body('shippingAddress.street')
@@ -40,7 +39,7 @@ const createOrderValidation = [
         .notEmpty()
         .withMessage('Country is required'),
     respondWithValidationErrors
-]
+];
 
 
 const updateAddressValidation = [
@@ -73,6 +72,6 @@ const updateAddressValidation = [
         .notEmpty()
         .withMessage('Country cannot be empty'),
     respondWithValidationErrors
-]
+];
 
-module.exports = { createOrderValidation, updateAddressValidation };       
+module.exports = { createOrderValidation, updateAddressValidation };

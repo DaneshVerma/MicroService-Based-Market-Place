@@ -17,7 +17,7 @@ describe('PATCH /api/orders/:id/address — Update delivery address prior to pay
 
     it('updates shipping address and returns updated order', async () => {
 
-        const order = await orderModel.create({
+        await orderModel.create({
             _id: orderId,
             user: '68bc6369c17579622cbdd9fe',
             items: [],
@@ -43,8 +43,6 @@ describe('PATCH /api/orders/:id/address — Update delivery address prior to pay
             .expect(200);
 
 
-
-
         const orderResponse = res.body.order || res.body.data || res.body;
         console.log(orderResponse.shippingAddress);
         expect(orderResponse.shippingAddress).toMatchObject({
@@ -58,7 +56,7 @@ describe('PATCH /api/orders/:id/address — Update delivery address prior to pay
 
     it('returns 409 when address update is not allowed (e.g., after capture/shipping)', async () => {
 
-        const order = await orderModel.create({
+        await orderModel.create({
             _id: orderId,
             user: '68bc6369c17579622cbdd9fe',
             items: [],
@@ -87,7 +85,7 @@ describe('PATCH /api/orders/:id/address — Update delivery address prior to pay
     });
 
     it('returns 400 when address is invalid', async () => {
-        const order = await orderModel.create({
+        await orderModel.create({
             _id: orderId,
             user: '68bc6369c17579622cbdd9fe',
             items: [],

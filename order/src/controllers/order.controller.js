@@ -1,8 +1,7 @@
-const { promises } = require("supertest/lib/test");
-const orderModel = require("../models/order.model")
-const axios = require("axios")
-const { publishToQueue } = require("../broker/broker");
-const config = require("../config/config");
+const orderModel = require('../models/order.model');
+const axios = require('axios');
+const { publishToQueue } = require('../broker/broker');
+const config = require('../config/config');
 
 
 async function createOrder(req, res) {
@@ -17,7 +16,7 @@ async function createOrder(req, res) {
             headers: {
                 Authorization: `Bearer ${token}`
             }
-        })
+        });
 
         const products = await Promise.all(cartResponse.data.cart.items.map(async (item) => {
 
@@ -25,21 +24,21 @@ async function createOrder(req, res) {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
-            })).data.data
+            })).data.data;
 
-        }))
+        }));
 
         let priceAmount = 0;
 
-        const orderItems = cartResponse.data.cart.items.map((item, index) => {
+        const orderItems = cartResponse.data.cart.items.map((item, _index) => {
 
 
-            const product = products.find(p => p._id === item.productId)
+            const product = products.find(p => p._id === item.productId);
 
             // if not in stock, does not allow order creation
 
             if (product.stock < item.quantity) {
-                throw new Error(`Product ${product.title} is out of stock or insufficient stock`)
+                throw new Error(`Product ${product.title} is out of stock or insufficient stock`);
             }
 
             const itemTotal = product.price.amount * item.quantity;
@@ -52,16 +51,16 @@ async function createOrder(req, res) {
                     amount: itemTotal,
                     currency: product.price.currency
                 }
-            }
-        })
+            };
+        });
 
         const order = await orderModel.create({
             user: user.id,
             items: orderItems,
-            status: "PENDING",
+            status: 'PENDING',
             totalPrice: {
                 amount: priceAmount,
-                currency: "INR" // assuming all products are in USD for simplicity
+                currency: 'INR' // assuming all products are in USD for simplicity
             },
             shippingAddress: {
                 street: req.body.shippingAddress.street,
@@ -70,15 +69,15 @@ async function createOrder(req, res) {
                 zip: req.body.shippingAddress.pincode,
                 country: req.body.shippingAddress.country,
             }
-        })
+        });
 
 
-        await publishToQueue("ORDER_SELLER_DASHBOARD.ORDER_CREATED", order)
+        await publishToQueue('ORDER_SELLER_DASHBOARD.ORDER_CREATED', order);
 
-        res.status(201).json({ order })
+        res.status(201).json({ order });
 
     } catch (err) {
-        res.status(500).json({ message: "Internal server error", error: err.message })
+        res.status(500).json({ message: 'Internal server error', error: err.message });
     }
 
 }
@@ -101,9 +100,9 @@ async function getMyOrders(req, res) {
                 page,
                 limit
             }
-        })
+        });
     } catch (err) {
-        res.status(500).json({ message: "Internal server error", error: err.message })
+        res.status(500).json({ message: 'Internal server error', error: err.message });
     }
 }
 
@@ -112,19 +111,19 @@ async function getOrderById(req, res) {
     const orderId = req.params.id;
 
     try {
-        const order = await orderModel.findById(orderId)
+        const order = await orderModel.findById(orderId);
 
         if (!order) {
-            return res.status(404).json({ message: "Order not found" });
+            return res.status(404).json({ message: 'Order not found' });
         }
 
         if (order.user.toString() !== user.id) {
-            return res.status(403).json({ message: "Forbidden: You do not have access to this order" });
+            return res.status(403).json({ message: 'Forbidden: You do not have access to this order' });
         }
 
-        res.status(200).json({ order })
+        res.status(200).json({ order });
     } catch (err) {
-        res.status(500).json({ message: "Internal server error", error: err.message })
+        res.status(500).json({ message: 'Internal server error', error: err.message });
     }
 }
 
@@ -133,22 +132,22 @@ async function cancelOrderById(req, res) {
     const orderId = req.params.id;
 
     try {
-        const order = await orderModel.findById(orderId)
+        const order = await orderModel.findById(orderId);
 
         if (!order) {
-            return res.status(404).json({ message: "Order not found" });
+            return res.status(404).json({ message: 'Order not found' });
         }
 
         if (order.user.toString() !== user.id) {
-            return res.status(403).json({ message: "Forbidden: You do not have access to this order" });
+            return res.status(403).json({ message: 'Forbidden: You do not have access to this order' });
         }
 
         // only PENDING orders can be cancelled
-        if (order.status !== "PENDING") {
-            return res.status(409).json({ message: "Order cannot be cancelled at this stage" });
+        if (order.status !== 'PENDING') {
+            return res.status(409).json({ message: 'Order cannot be cancelled at this stage' });
         }
 
-        order.status = "CANCELLED";
+        order.status = 'CANCELLED';
         await order.save();
 
         res.status(200).json({ order });
@@ -156,7 +155,7 @@ async function cancelOrderById(req, res) {
 
         console.error(err);
 
-        res.status(500).json({ message: "Internal server error", error: err.message });
+        res.status(500).json({ message: 'Internal server error', error: err.message });
     }
 }
 
@@ -166,19 +165,19 @@ async function updateOrderAddress(req, res) {
     const orderId = req.params.id;
 
     try {
-        const order = await orderModel.findById(orderId)
+        const order = await orderModel.findById(orderId);
 
         if (!order) {
-            return res.status(404).json({ message: "Order not found" });
+            return res.status(404).json({ message: 'Order not found' });
         }
 
         if (order.user.toString() !== user.id) {
-            return res.status(403).json({ message: "Forbidden: You do not have access to this order" });
+            return res.status(403).json({ message: 'Forbidden: You do not have access to this order' });
         }
 
         // only PENDING orders can have address updated
-        if (order.status !== "PENDING") {
-            return res.status(409).json({ message: "Order address cannot be updated at this stage" });
+        if (order.status !== 'PENDING') {
+            return res.status(409).json({ message: 'Order address cannot be updated at this stage' });
         }
 
         order.shippingAddress = {
@@ -193,7 +192,7 @@ async function updateOrderAddress(req, res) {
 
         res.status(200).json({ order });
     } catch (err) {
-        res.status(500).json({ message: "Internal server error", error: err.message });
+        res.status(500).json({ message: 'Internal server error', error: err.message });
     }
 }
 
@@ -203,4 +202,4 @@ module.exports = {
     getOrderById,
     cancelOrderById,
     updateOrderAddress
-}
+};

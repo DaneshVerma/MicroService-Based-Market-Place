@@ -3,7 +3,6 @@ const app = require('../../src/app');
 const { getAuthCookie } = require('../setup/auth');
 
 
-
 describe('GET /api/orders/me — Paginated list of the customer’s orders', () => {
     it('returns paginated orders with meta and defaults page=1, limit=20', async () => {
         const res = await request(app)
@@ -32,8 +31,8 @@ describe('GET /api/orders/me — Paginated list of the customer’s orders', () 
             .expect(200);
 
         const meta = res.body.meta || res.body.pagination || {};
-        expect([ 2, '2' ]).toContain(meta.page);
-        expect([ 5, '5' ]).toContain(meta.limit);
+        expect([2, '2']).toContain(meta.page);
+        expect([5, '5']).toContain(meta.limit);
     });
 
     it('returns empty list when user has no orders', async () => {

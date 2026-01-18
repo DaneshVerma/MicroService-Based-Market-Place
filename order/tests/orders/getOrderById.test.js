@@ -58,7 +58,7 @@ describe('GET /api/orders/:id — Get order by id with timeline and payment summ
 
     it('returns 404 when order not found or not accessible', async () => {
         const res = await request(app)
-            .get(`/api/orders/000000000000000000000000`)
+            .get('/api/orders/000000000000000000000000')
             .set('Cookie', getAuthCookie())
             .expect('Content-Type', /json/)
             .expect(404);
