@@ -18,7 +18,7 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   search?: string;
-  sort?: 'price' | '-price' | 'createdAt' | '-createdAt' | 'ratings';
+  sort?: "price" | "-price" | "createdAt" | "-createdAt" | "ratings";
   page?: number;
   limit?: number;
 }
@@ -40,4 +40,4 @@ export interface CreateProductRequest {
   stock: number;
 }
 
-export interface UpdateProductRequest extends Partial<CreateProductRequest> {}
+export type UpdateProductRequest = Partial<CreateProductRequest>;

@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"No tests yet\"",
     "start": "node server.js",
-    "dev": "npx nodemon server.js"
+    "dev": "npx nodemon server.js",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix"
   },
   "keywords": [],
   "author": "",
@@ -21,5 +23,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.1",
     "razorpay": "^2.9.6"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
   }
 }

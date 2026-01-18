@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"No tests yet\"",
     "start": "node server.js",
-    "dev": "npx nodemon server.js"
+    "dev": "npx nodemon server.js",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix"
   },
   "keywords": [],
   "author": "",
@@ -24,5 +26,8 @@
     "mongoose": "^8.18.1",
     "socket.io": "^4.8.1",
     "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
   }
 }
