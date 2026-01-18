@@ -41,14 +41,16 @@ beforeEach(() => {
       const productId = url.split("/").pop();
       return Promise.resolve({
         data: {
-          _id: productId,
-          title: `Product ${productId}`,
-          description: "Test product",
-          price: {
-            amount: 100,
-            currency: "USD",
+          data: {
+            _id: productId,
+            title: `Product ${productId}`,
+            description: "Test product",
+            price: {
+              amount: 100,
+              currency: "USD",
+            },
+            stock: 10,
           },
-          stock: 10,
         },
       });
     }
