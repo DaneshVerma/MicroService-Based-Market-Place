@@ -1,6 +1,6 @@
-import { createBrowserRouter } from 'react-router-dom';
-import { Layout } from '@/components/layout';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { createBrowserRouter } from "react-router-dom";
+import { Layout } from "@/components/layout";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import {
   HomePage,
   LoginPage,
@@ -13,11 +13,11 @@ import {
   OrderDetailPage,
   ProfilePage,
   SellerDashboardPage,
-} from '@/pages';
+} from "@/pages";
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Layout />,
     children: [
       {
@@ -25,23 +25,23 @@ export const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: 'login',
+        path: "login",
         element: <LoginPage />,
       },
       {
-        path: 'register',
+        path: "register",
         element: <RegisterPage />,
       },
       {
-        path: 'products',
+        path: "products",
         element: <ProductsPage />,
       },
       {
-        path: 'products/:id',
+        path: "products/:id",
         element: <ProductDetailPage />,
       },
       {
-        path: 'cart',
+        path: "cart",
         element: (
           <ProtectedRoute>
             <CartPage />
@@ -49,7 +49,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'checkout',
+        path: "checkout",
         element: (
           <ProtectedRoute>
             <CheckoutPage />
@@ -57,7 +57,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'orders',
+        path: "orders",
         element: (
           <ProtectedRoute>
             <OrdersPage />
@@ -65,7 +65,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'orders/:id',
+        path: "orders/:id",
         element: (
           <ProtectedRoute>
             <OrderDetailPage />
@@ -73,7 +73,7 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'profile',
+        path: "profile",
         element: (
           <ProtectedRoute>
             <ProfilePage />
@@ -81,9 +81,9 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'seller/dashboard',
+        path: "seller/dashboard",
         element: (
-          <ProtectedRoute allowedRoles={['seller', 'admin']}>
+          <ProtectedRoute allowedRoles={["seller", "admin"]}>
             <SellerDashboardPage />
           </ProtectedRoute>
         ),

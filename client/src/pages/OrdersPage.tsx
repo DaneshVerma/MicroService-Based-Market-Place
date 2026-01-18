@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Package, ChevronRight, Loader2 } from "lucide-react";
+import { Package, ChevronRight } from "lucide-react";
 import { Card, CardContent, Skeleton, Badge } from "@/components/ui";
 import { useOrders } from "@/hooks";
 import type { OrderStatus, PaymentStatus } from "@/types";

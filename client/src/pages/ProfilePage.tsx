@@ -17,7 +17,7 @@ import type { Address } from "@/types";
 
 export function ProfilePage() {
   const { user } = useAuthStore();
-  const { data: meData, isLoading: meLoading } = useMe();
+  const { isLoading: meLoading } = useMe();
   const { data: addressData, isLoading: addressesLoading } = useAddresses();
   const { mutate: addAddress, isPending: isAddingAddress } = useAddAddress();
   const { mutate: deleteAddress, isPending: isDeletingAddress } =
