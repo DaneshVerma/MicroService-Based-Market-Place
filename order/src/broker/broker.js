@@ -1,5 +1,5 @@
 const amqplib = require('amqplib');
-
+const config = require('../config/config');
 
 
 let channel, connection;
@@ -10,7 +10,7 @@ async function connect() {
     if (connection) return connection;
 
     try {
-        connection = await amqplib.connect(process.env.RABBIT_URL);
+        connection = await amqplib.connect(config.RABBITMQ_URL);
         console.log('Connected to RabbitMQ');
         channel = await connection.createChannel();
     }

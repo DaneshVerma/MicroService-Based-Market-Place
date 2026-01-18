@@ -1,39 +1,36 @@
-const express = require("express");
+const express = require('express');
+const multer = require('multer');
+const productController = require('../controllers/product.controller');
+const createAuthMiddleware = require('../middlewares/auth.middleware');
+const { createProductValidators } = require('../validators/product.validators');
+
 const router = express.Router();
-const multer = require("multer");
-const createAuthMiddleware = require("../middlewares/auth.middleware");
-const {
-  validateProduct,
-  validateImages,
-} = require("../middlewares/validators/product.validator");
-const {
-  createProduct,
-  getProducts,
-  getProductById,
-  updateProduct,
-  deleteProduct,
-  getProductsBySeller,
-} = require("../controller/product.controller");
 
 const upload = multer({ storage: multer.memoryStorage() });
 
+// POST /api/products
 router.post(
-  "/",
-  upload.array("images", 5),
-  createAuthMiddleware(["admin", "seller"]),
-  validateProduct,
-  validateImages,
-  createProduct
+    '/',
+    createAuthMiddleware([ 'admin', 'seller' ]),
+    upload.array('images', 5),
+    createProductValidators,
+    productController.createProduct
 );
 
-router.get("/", getProducts);
+// GET /api/products
+router.get('/', productController.getProducts)
 
-router.patch("/:id", createAuthMiddleware(["admin", "seller"]), updateProduct);
 
-router.delete("/:id", createAuthMiddleware(["admin", "seller"]), deleteProduct);
 
-router.get("/seller", createAuthMiddleware(["seller"]), getProductsBySeller);
+router.patch("/:id", createAuthMiddleware([ "seller" ]), productController.updateProduct);
+router.delete("/:id", createAuthMiddleware([ "seller" ]), productController.deleteProduct);
 
-router.get("/:id", getProductById);
+
+router.get("/seller", createAuthMiddleware([ "seller" ]), productController.getProductsBySeller);
+
+
+// GET /api/products/:id
+router.get('/:id', productController.getProductById);
+
 
 module.exports = router;

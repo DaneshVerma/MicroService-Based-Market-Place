@@ -1,13 +1,13 @@
-const mongoose = require("mongoose");
-const { MONGO_URI } = require("../config/environments");
-function connectDB() {
-  mongoose
-    .connect(MONGO_URI)
-    .then(() => {
-      console.log("database connected successfully");
-    })
-    .catch((err) => {
-      console.log(err.message, "database connection error");
-    });
+const mongoose = require('mongoose');
+
+
+async function connectDB() {
+    try {
+        await mongoose.connect(process.env.MONGO_URI)
+        console.log("Database connected successfully");
+    } catch (err) {
+        console.error("Database connection failed", err);
+    }
 }
+
 module.exports = connectDB;

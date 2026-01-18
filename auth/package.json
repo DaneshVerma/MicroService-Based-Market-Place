@@ -4,26 +4,31 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx nodemon server.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "dev": "nodemon server.js",
+    "start":"node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "amqplib": "^0.10.9",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",
-    "ioredis": "^5.8.0",
+    "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.18.3"
+    "mongoose": "^8.18.0"
   },
   "devDependencies": {
-    "jest": "^30.2.0",
-    "mongodb-memory-server": "^10.2.2",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.2.0",
+    "nodemon": "^2.0.22",
     "supertest": "^7.1.4"
   }
 }

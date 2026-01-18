@@ -1,40 +1,25 @@
-const ImageKit = require("imagekit");
-const config = require("../config/config");
-const { v4: uuidv4 } = require("uuid");
+const ImageKit = require('imagekit');
+const { v4: uuidv4 } = require("uuid")
+
+
 
 const imagekit = new ImageKit({
-  publicKey: config.IMAGEKIT_PUBLIC_KEY,
-  privateKey: config.IMAGEKIT_PRIVATE_KEY,
-  urlEndpoint: config.IMAGEKIT_URL_ENDPOINT,
+    publicKey: process.env.IMAGEKIT_PUBLIC_KEY || 'test_public',
+    privateKey: process.env.IMAGEKIT_PRIVATE_KEY || 'test_private',
+    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || 'https://ik.imagekit.io/demo',
 });
 
-async function uploadImages({ buffer, filename, folder = "/products" }) {
-  try {
-    const response = await imagekit.upload({
-      file: buffer,
-      fileName: `${uuidv4()}-${filename}`,
-      folder,
+async function uploadImage({ buffer, folder = '/products' }) {
+    const res = await imagekit.upload({
+        file: buffer,
+        fileName: uuidv4(),
+        folder,
     });
     return {
-      url: response.url,
-      thumbnailUrl: response.thumbnailUrl,
-      fileId: response.fileId,
+        url: res.url,
+        thumbnail: res.thumbnailUrl || res.url,
+        id: res.fileId,
     };
-  } catch (error) {
-    console.error("Error uploading image to ImageKit:", error);
-    throw new Error("Image upload failed");
-  }
 }
 
-async function deleteImage(fileId) {
-  try {
-    const response = await imagekit.deleteFile(fileId);
-    return response;
-  } catch (error) {
-    console.error("Error deleting image from ImageKit:", error);
-  }
-}
-module.exports = {
-  uploadImages,
-  deleteImage,
-};
+module.exports = { imagekit, uploadImage };

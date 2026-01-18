@@ -1,8 +1,12 @@
+require('dotenv').config();
 const app = require("./src/app");
-const conntectDB = require("./src/db/db");
+const connectDB = require("./src/db/db");
+const config = require("./src/config/config");
 
-conntectDB();
 
-app.listen(3002, () => {
-  console.log("server running on port 3002");
-});
+connectDB();
+
+
+app.listen(config.PORT, () => {
+    console.log(`Cart service is running on port ${config.PORT}`);
+})

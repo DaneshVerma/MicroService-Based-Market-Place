@@ -1,37 +1,26 @@
-const express = require("express");
-const {
-  register,
-  login,
-  getCurrentUser,
-  logout,
-} = require("../controllers/auth.controller");
-const {
-  registerUserValidation,
-  loginValidation,
-} = require("../middlewares/validator.middleware");
-const authMiddleware = require("../middlewares/auth.middleware");
+const express = require('express');
+const validators = require('../middlewares/validator.middleware');
+const authController = require("../controllers/auth.controller")
+const authMiddleware = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
-router.post("/register", registerUserValidation, register);
-router.post("/login", loginValidation, login);
-router.get("/me", authMiddleware, getCurrentUser);
-router.post("/logout", logout);
-// Addresses
-const { addressValidation } = require("../middlewares/validator.middleware");
-const {
-  getAddresses,
-  addAddress,
-  deleteAddress,
-} = require("../controllers/auth.controller");
+// POST /auth/register
+router.post('/register', validators.registerUserValidations, authController.registerUser);
 
-router.get("/users/me/addresses", authMiddleware, getAddresses);
-router.post(
-  "/users/me/addresses",
-  authMiddleware,
-  addressValidation,
-  addAddress
-);
-router.delete("/users/me/addresses/:addressId", authMiddleware, deleteAddress);
+// POST /auth/login
+router.post('/login', validators.loginUserValidations, authController.loginUser);
+
+// GET /api/auth/me
+router.get('/me', authMiddleware.authMiddleware, authController.getCurrentUser);
+
+router.get("/logout", authController.logoutUser);
+
+
+router.get('/users/me/addresses', authMiddleware.authMiddleware, authController.getUserAddresses);
+
+router.post("/users/me/addresses", validators.addUserAddressValidations, authMiddleware.authMiddleware, authController.addUserAddress)
+
+router.delete("/users/me/addresses/:addressId", authMiddleware.authMiddleware, authController.deleteUserAddress)
 
 module.exports = router;

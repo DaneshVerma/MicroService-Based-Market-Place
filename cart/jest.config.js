@@ -1,7 +1,11 @@
+/**
+ * Jest configuration for Cart service
+ */
 module.exports = {
-  testEnvironment: "node",
-  coveragePathIgnorePatterns: ["/node_modules/"],
-  setupFilesAfterEnv: ["<rootDir>/tests/setup/globalSetup.js"],
-  testMatch: ["**/tests/**/*.test.js"],
-  verbose: true,
+    testEnvironment: 'node',
+    roots: [ '<rootDir>/tests' ],
+    coverageDirectory: 'coverage',
+    collectCoverageFrom: [ 'src/**/*.js', '!src/db/**' ],
+    moduleFileExtensions: [ 'js', 'json' ],
+    setupFilesAfterEnv: [ '<rootDir>/tests/setup/globalSetup.js' ]
 };

@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
 
-function connectDB() {
-    try {
-        mongoose.connect(process.env.SELLER_DASHBOARD_DB_URI);
 
-        console.log('Connected to Seller Dashboard Database');
-    }
-    catch (error) {
-        console.error('Error connecting to Seller Dashboard Database:', error);
+
+
+async function connectDB() {
+    try {
+        await mongoose.connect(process.env.MONGO_URI)
+        console.log('Connected to MongoDB');
+    } catch (error) {
+        console.error('Error connecting to MongoDB:', error);
+        process.exit(1);
     }
 }
+
+
 module.exports = connectDB;

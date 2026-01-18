@@ -2,7 +2,7 @@
   "name": "ai-buddy",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
@@ -13,16 +13,16 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@langchain/core": "^1.1.12",
-    "@langchain/google-genai": "^2.1.7",
-    "@langchain/langgraph": "^1.0.15",
-    "axios": "^1.13.2",
-    "cookie": "^1.1.1",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.0.2",
-    "socket.io": "^4.8.3",
-    "zod": "^4.3.5"
+    "@langchain/core": "^0.3.75",
+    "@langchain/google-genai": "^0.2.17",
+    "@langchain/langgraph": "^0.4.9",
+    "axios": "^1.12.1",
+    "cookie": "^1.0.2",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.1",
+    "socket.io": "^4.8.1",
+    "zod": "^3.25.76"
   }
 }

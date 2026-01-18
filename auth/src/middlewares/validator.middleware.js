@@ -1,92 +1,110 @@
-const { body, validationResult } = require("express-validator");
+const { body, validationResult } = require('express-validator');
+
 
 const respondWithValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+}
 
-const registerUserValidation = [
-  body("username")
-    .isString()
-    .notEmpty()
-    .withMessage("Username is required")
-    .isLength({ min: 3 })
-    .withMessage("Username must be at least 3 characters long"),
-  body("email")
-    .isString()
-    .notEmpty()
-    .withMessage("Email is required")
-    .isEmail()
-    .withMessage("Email is invalid"),
-  body("fullName.firstName")
-    .isString()
-    .notEmpty()
-    .withMessage("First name is required"),
-  body("fullName.lastName")
-    .isString()
-    .notEmpty()
-    .withMessage("Last name is required"),
-  body("password")
-    .isString()
-    .notEmpty()
-    .withMessage("Password is required")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters long"),
-  body("addresses")
-    .isArray()
-    .withMessage("Addresses must be an array")
-    .custom((addresses) => {
-      if (addresses && addresses.length > 0) {
-        for (let i = 0; i < addresses.length; i++) {
-          const address = addresses[i];
-          if (
-            !address.street ||
-            !address.city ||
-            !address.state ||
-            !address.zip ||
-            !address.country
-          ) {
-            throw new Error(`Address at index ${i} is missing required fields`);
-          }
+
+const registerUserValidations = [
+    body("username")
+        .isString()
+        .withMessage("Username must be a string")
+        .isLength({ min: 3 })
+        .withMessage("Username must be at least 3 characters long"),
+    body("email")
+        .isEmail()
+        .withMessage("Invalid email address"),
+    body("password")
+        .isLength({ min: 6 })
+        .withMessage("Password must be at least 6 characters long"),
+    body("fullName.firstName")
+        .isString()
+        .withMessage("First name must be a string")
+        .notEmpty()
+        .withMessage("First name is required"),
+    body("fullName.lastName")
+        .isString()
+        .withMessage("Last name must be a string")
+        .notEmpty()
+        .withMessage("Last name is required"),
+    body("role")
+        .optional()
+        .isIn([ 'user', 'seller' ])
+        .withMessage("Role must be either 'user' or 'seller'"),
+    respondWithValidationErrors
+]
+
+
+const loginUserValidations = [
+    body('email')
+        .optional()
+        .isEmail()
+        .withMessage('Invalid email address'),
+    body('username')
+        .optional()
+        .isString()
+        .withMessage('Username must be a string'),
+    body('password')
+        .isLength({ min: 6 })
+        .withMessage('Password must be at least 6 characters long'),
+    (req, res, next) => {
+        if (!req.body.email && !req.body.username) {
+            return res.status(400).json({ errors: [ { msg: 'Either email or username is required' } ] });
         }
-      }
-      return true;
-    }),
-  body("role").isString().notEmpty().withMessage("Role is required"),
-  respondWithValidationErrors,
-];
+        respondWithValidationErrors(req, res, next);
+    }
+]
 
-const loginValidation = [
-  body("email").optional().isString().withMessage("Email is invalid"),
-  body("username").optional().isString().withMessage("Username is invalid"),
-  body("password").isString().notEmpty().withMessage("Password is required"),
-  respondWithValidationErrors,
-];
-
-const addressValidation = [
-  body("street").isString().notEmpty().withMessage("Street is required"),
-  body("city").isString().notEmpty().withMessage("City is required"),
-  body("state").isString().notEmpty().withMessage("State is required"),
-  body("zip").isString().notEmpty().withMessage("Zip is required"),
-  body("country").isString().notEmpty().withMessage("Country is required"),
-  // pincode: numeric and length 6 (common assumption in tests)
-  body("pincode")
-    .isString()
-    .matches(/^\d{6}$/)
-    .withMessage("Pincode must be a 6 digit number"),
-  // phone: numeric and 10 digits
-  body("phone")
-    .isString()
-    .matches(/^\d{10}$/)
-    .withMessage("Phone must be a 10 digit number"),
-  respondWithValidationErrors,
-];
+const addUserAddressValidations = [
+    body('street')
+        .isString()
+        .withMessage('Street must be a string')
+        .notEmpty()
+        .withMessage('Street is required'),
+    body('city')
+        .isString()
+        .withMessage('City must be a string')
+        .notEmpty()
+        .withMessage('City is required'),
+    body('state')
+        .isString()
+        .withMessage('State must be a string')
+        .notEmpty()
+        .withMessage('State is required'),
+    body('pincode')
+        .isString()
+        .withMessage('Pincode must be a string')
+        .notEmpty()
+        .withMessage('Pincode is required')
+        .bail()
+        .matches(/^\d{4,}$/)
+        .withMessage('Pincode must be at least 4 digits'),
+    body('country')
+        .isString()
+        .withMessage('Country must be a string')
+        .notEmpty()
+        .withMessage('Country is required'),
+    body('phone')
+        .optional()
+        .isString()
+        .withMessage('Phone must be a string')
+        .bail()
+        .matches(/^\d{10}$/)
+        .withMessage('Phone must be a valid 10-digit number'),
+    body('isDefault')
+        .optional()
+        .isBoolean()
+        .withMessage('isDefault must be a boolean'),
+    respondWithValidationErrors
+]
 
 module.exports = {
-  registerUserValidation,
-  loginValidation,
-  addressValidation,
+    registerUserValidations,
+    loginUserValidations,
+    addUserAddressValidations
 };
