@@ -1,8 +1,8 @@
 const userModel = require('../models/user.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const redis = require("../db/redis")
-const { publishToQueue } = require("../broker/broker")
+const redis = require('../db/redis');
+const { publishToQueue } = require('../broker/broker');
 
 
 async function registerUser(req, res) {
@@ -17,7 +17,7 @@ async function registerUser(req, res) {
         });
 
         if (isUserAlreadyExists) {
-            return res.status(409).json({ message: "Username or email already exists" });
+            return res.status(409).json({ message: 'Username or email already exists' });
         }
 
         const hash = await bcrypt.hash(password, 10);
@@ -29,7 +29,7 @@ async function registerUser(req, res) {
             password: hash,
             fullName: { firstName, lastName },
             role: role || 'user' // default role is 'user'
-        })
+        });
 
 
         await Promise.all([
@@ -39,7 +39,7 @@ async function registerUser(req, res) {
                 email: user.email,
                 fullName: user.fullName,
             }),
-            publishToQueue("AUTH_SELLER_DASHBOARD.USER_CREATED", user)
+            publishToQueue('AUTH_SELLER_DASHBOARD.USER_CREATED', user)
         ]);
 
         const token = jwt.sign({
@@ -49,15 +49,15 @@ async function registerUser(req, res) {
             role: user.role
         }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-        res.cookie("token", token, {
+        res.cookie('token', token, {
             httpOnly: true,
             secure: true,
             maxAge: 24 * 60 * 60 * 1000, // 1 day
-        })
+        });
 
 
         res.status(201).json({
-            message: "User registered successfully",
+            message: 'User registered successfully',
             user: {
                 id: user._id,
                 username: user.username,
@@ -66,10 +66,10 @@ async function registerUser(req, res) {
                 role: user.role,
                 addresses: user.addresses
             }
-        })
+        });
     } catch (err) {
-        console.error("Error in registerUser:", err);
-        res.status(500).json({ message: "Internal server error" });
+        console.error('Error in registerUser:', err);
+        res.status(500).json({ message: 'Internal server error' });
     }
 
 }
@@ -122,7 +122,7 @@ async function loginUser(req, res) {
 
 async function getCurrentUser(req, res) {
     return res.status(200).json({
-        message: "Current user fetched successfully",
+        message: 'Current user fetched successfully',
         user: req.user
     });
 }
@@ -140,29 +140,29 @@ async function logoutUser(req, res) {
         secure: true,
     });
 
-    return res.status(200).json({ message: "Logged out successfully" });
+    return res.status(200).json({ message: 'Logged out successfully' });
 
 }
 
 async function getUserAddresses(req, res) {
 
-    const id = req.user.id
+    const id = req.user.id;
 
     const user = await userModel.findById(id).select('addresses');
 
     if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: 'User not found' });
     }
 
     return res.status(200).json({
-        message: "User addresses fetched successfully",
+        message: 'User addresses fetched successfully',
         addresses: user.addresses
     });
 }
 
 async function addUserAddress(req, res) {
 
-    const id = req.user.id
+    const id = req.user.id;
 
     const { street, city, state, pincode, country, isDefault } = req.body;
 
@@ -180,11 +180,11 @@ async function addUserAddress(req, res) {
     }, { new: true });
 
     if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: 'User not found' });
     }
 
     return res.status(201).json({
-        message: "Address added successfully",
+        message: 'Address added successfully',
         address: user.addresses[user.addresses.length - 1]
     });
 }
@@ -199,7 +199,7 @@ async function deleteUserAddress(req, res) {
 
 
     if (!isAddressExists) {
-        return res.status(404).json({ message: "Address not found" });
+        return res.status(404).json({ message: 'Address not found' });
     }
 
     const user = await userModel.findOneAndUpdate({ _id: id }, {
@@ -209,16 +209,16 @@ async function deleteUserAddress(req, res) {
     }, { new: true });
 
     if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: 'User not found' });
     }
 
     const addressExists = user.addresses.some(addr => addr._id.toString() === addressId);
     if (addressExists) {
-        return res.status(500).json({ message: "Failed to delete address" });
+        return res.status(500).json({ message: 'Failed to delete address' });
     }
 
     return res.status(200).json({
-        message: "Address deleted successfully",
+        message: 'Address deleted successfully',
         addresses: user.addresses
     });
 
@@ -232,4 +232,4 @@ module.exports = {
     getUserAddresses,
     addUserAddress,
     deleteUserAddress
-}
+};

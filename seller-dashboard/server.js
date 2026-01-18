@@ -11,9 +11,9 @@ connectDB();
 
 connect().then(() => {
     listener();
-})
+});
 
 
 app.listen(config.PORT, () => {
     console.log(`Seller dashboard service is running on port ${config.PORT}`);
-})
+});

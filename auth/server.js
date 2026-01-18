@@ -10,4 +10,4 @@ connect();
 
 app.listen(config.PORT, () => {
     console.log(`Auth service is running on port ${config.PORT}`);
-})
+});

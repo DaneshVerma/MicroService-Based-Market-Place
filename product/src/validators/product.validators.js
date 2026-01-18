@@ -30,11 +30,10 @@ const createProductValidators = [
         .withMessage('priceAmount must be a number > 0'),
     body('priceCurrency')
         .optional()
-        .isIn([ 'USD', 'INR' ])
+        .isIn(['USD', 'INR'])
         .withMessage('priceCurrency must be USD or INR'),
     handleValidationErrors
 ];
-
 
 
 module.exports = { createProductValidators };

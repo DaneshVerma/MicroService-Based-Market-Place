@@ -19,7 +19,7 @@ describe('GET /api/auth/me', () => {
         const fakeToken = jwt.sign({ id: '000000000000000000000000' }, 'wrong_secret');
         const res = await request(app)
             .get('/api/auth/me')
-            .set('Cookie', [ `token=${fakeToken}` ]);
+            .set('Cookie', [`token=${fakeToken}`]);
         expect(res.status).toBe(401);
     });
 

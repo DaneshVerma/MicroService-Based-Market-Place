@@ -1,6 +1,5 @@
 const ImageKit = require('imagekit');
-const { v4: uuidv4 } = require("uuid")
-
+const { v4: uuidv4 } = require('uuid');
 
 
 const imagekit = new ImageKit({

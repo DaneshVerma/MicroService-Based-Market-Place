@@ -1,8 +1,7 @@
 const productModel = require('../models/product.model');
 const { uploadImage } = require('../services/imagekit.service');
 const mongoose = require('mongoose');
-const { publishToQueue } = require("../broker/broker")
-
+const { publishToQueue } = require('../broker/broker');
 
 
 // Accepts multipart/form-data with fields: title, description, priceAmount, priceCurrency, images[] (files)
@@ -21,8 +20,8 @@ async function createProduct(req, res) {
 
         const product = await productModel.create({ title, description, price, seller, images });
 
-        await publishToQueue("PRODUCT_SELLER_DASHBOARD.PRODUCT_CREATED", product);
-        await publishToQueue("PRODUCT_NOTIFICATION.PRODUCT_CREATED", {
+        await publishToQueue('PRODUCT_SELLER_DASHBOARD.PRODUCT_CREATED', product);
+        await publishToQueue('PRODUCT_NOTIFICATION.PRODUCT_CREATED', {
             email: req.user.email,
             productId: product._id,
             sellerId: seller
@@ -44,18 +43,18 @@ async function getProducts(req, res) {
     const { q, minprice, maxprice, skip = 0, limit = 20 } = req.query;
 
 
-    const filter = {}
+    const filter = {};
 
     if (q) {
-        filter.$text = { $search: q }
+        filter.$text = { $search: q };
     }
 
     if (minprice) {
-        filter['price.amount'] = { ...filter['price.amount'], $gte: Number(minprice) }
+        filter['price.amount'] = { ...filter['price.amount'], $gte: Number(minprice) };
     }
 
     if (maxprice) {
-        filter['price.amount'] = { ...filter['price.amount'], $lte: Number(maxprice) }
+        filter['price.amount'] = { ...filter['price.amount'], $lte: Number(maxprice) };
     }
 
     const products = await productModel.find(filter).skip(Number(skip)).limit(Math.min(Number(limit), 20));
@@ -92,7 +91,7 @@ async function updateProduct(req, res) {
 
     const product = await productModel.findOne({
         _id: id,
-    })
+    });
 
 
     if (!product) {
@@ -133,7 +132,7 @@ async function deleteProduct(req, res) {
 
     const product = await productModel.findOne({
         _id: id,
-    })
+    });
 
     if (!product) {
         return res.status(404).json({ message: 'Product not found' });
@@ -150,7 +149,7 @@ async function deleteProduct(req, res) {
 
 async function getProductsBySeller(req, res) {
 
-    const seller = req.user
+    const seller = req.user;
 
     const { skip = 0, limit = 20 } = req.query;
 

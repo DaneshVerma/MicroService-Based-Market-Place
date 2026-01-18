@@ -74,7 +74,7 @@ describe('GET /api/products', () => {
         expect(res.body.data.length).toBe(2);
         // Sanity check that only shirts are returned
         const titles = res.body.data.map(p => p.title).sort();
-        expect(titles).toEqual(expect.arrayContaining([ 'Red Shirt', 'Blue Shirt' ]));
+        expect(titles).toEqual(expect.arrayContaining(['Red Shirt', 'Blue Shirt']));
     });
 
     it('filters by minprice and maxprice', async () => {

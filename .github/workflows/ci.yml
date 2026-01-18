@@ -34,7 +34,6 @@ jobs:
       - name: Run ESLint
         working-directory: ${{ matrix.service }}
         run: npm run lint
-        continue-on-error: true
 
   # ==========================================
   # Build Check - Verify syntax is correct

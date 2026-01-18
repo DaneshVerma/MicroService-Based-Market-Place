@@ -93,7 +93,7 @@ describe('User addresses API', () => {
                     isDefault: true,
                 });
 
-            expect([ 200, 201 ]).toContain(res.status);
+            expect([200, 201]).toContain(res.status);
             expect(res.body.address).toBeDefined();
             const addr = res.body.address;
             expect(addr.street).toBe('1600 Amphitheatre Pkwy');

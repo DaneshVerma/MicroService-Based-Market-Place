@@ -79,7 +79,7 @@ describe('GET /api/products/seller (SELLER)', () => {
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body.data)).toBe(true);
         const titles = res.body.data.map(p => p.title).sort();
-        expect(titles).toEqual([ 'A1', 'A2' ]);
+        expect(titles).toEqual(['A1', 'A2']);
     });
 
     it('supports pagination with skip and limit', async () => {

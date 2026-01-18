@@ -10,7 +10,6 @@ const addressSchema = new mongoose.Schema({
 });
 
 
-
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -32,13 +31,13 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: [ 'user', 'seller' ],
+        enum: ['user', 'seller'],
         default: 'user'
     },
     addresses: [
         addressSchema
     ]
-})
+});
 
 const userModel = mongoose.model('user', userSchema);
 

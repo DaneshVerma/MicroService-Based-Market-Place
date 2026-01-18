@@ -13,4 +13,4 @@ initSocketServer(httpServer);
 
 httpServer.listen(config.PORT, () => {
     console.log(`AI Buddy service is running on port ${config.PORT}`);
-})
+});

@@ -34,14 +34,14 @@ const orderSchema = new mongoose.Schema({
                 currency: {
                     type: String,
                     required: true,
-                    enum: [ "USD", "INR" ]
+                    enum: ['USD', 'INR']
                 }
             }
         }
     ],
     status: {
         type: String,
-        enum: [ "PENDING", "CONFIRMED", "CANCELLED", "SHIPPED", "DELIVERED" ],
+        enum: ['PENDING', 'CONFIRMED', 'CANCELLED', 'SHIPPED', 'DELIVERED'],
     },
     totalPrice: {
         amount: {
@@ -51,7 +51,7 @@ const orderSchema = new mongoose.Schema({
         currency: {
             type: String,
             required: true,
-            enum: [ "USD", "INR" ]
+            enum: ['USD', 'INR']
         }
     },
     shippingAddress: {
@@ -61,6 +61,6 @@ const orderSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-const orderModel = mongoose.model("order", orderSchema);
+const orderModel = mongoose.model('order', orderSchema);
 
 module.exports = orderModel;

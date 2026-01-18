@@ -47,12 +47,9 @@ async function subscribeToQueue(queueName, callback) {
             await callback(data);
             channel.ack(msg);
         }
-    })
+    });
 
 }
-
-
-
 
 
 module.exports = {
@@ -61,4 +58,4 @@ module.exports = {
     connection,
     publishToQueue,
     subscribeToQueue
-}
+};

@@ -4,12 +4,11 @@ const cookie = require('cookie');
 const agent = require('../agent/agent');
 
 
-
 async function initSocketServer(httpServer) {
 
     const io = new Server(httpServer, {
-        path: "/api/socket/socket.io/",
-    })
+        path: '/api/socket/socket.io/',
+    });
 
     io.use((socket, next) => {
 
@@ -27,17 +26,17 @@ async function initSocketServer(httpServer) {
             socket.user = decoded;
             socket.token = token;
 
-            next()
+            next();
 
         } catch (err) {
             next(new Error('Invalid token'));
         }
 
-    })
+    });
 
     io.on('connection', (socket) => {
 
-        console.log(socket.user, socket.token)
+        console.log(socket.user, socket.token);
 
 
         socket.on('message', async (data) => {
@@ -45,7 +44,7 @@ async function initSocketServer(httpServer) {
             const agentResponse = await agent.invoke({
                 messages: [
                     {
-                        role: "user",
+                        role: 'user',
                         content: data
                     }
                 ]
@@ -53,15 +52,15 @@ async function initSocketServer(httpServer) {
                 metadata: {
                     token: socket.token
                 }
-            })
+            });
 
-            const lastMessage = agentResponse.messages[ agentResponse.messages.length - 1 ]
+            const lastMessage = agentResponse.messages[ agentResponse.messages.length - 1 ];
 
-            socket.emit('message', lastMessage.content)
+            socket.emit('message', lastMessage.content);
 
-        })
+        });
 
-    })
+    });
 
 }
 

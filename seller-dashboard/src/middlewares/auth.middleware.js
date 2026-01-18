@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-function createAuthMiddleware(roles = [ "user" ]) {
+function createAuthMiddleware(roles = ['user']) {
 
     return function authMiddleware(req, res, next) {
         const token = req.cookies?.token || req.headers?.authorization?.split(' ')[ 1 ];
@@ -12,7 +12,7 @@ function createAuthMiddleware(roles = [ "user" ]) {
         }
 
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET)
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
             if (!roles.includes(decoded.role)) {
                 return res.status(403).json({
@@ -29,7 +29,7 @@ function createAuthMiddleware(roles = [ "user" ]) {
             });
         }
 
-    }
+    };
 
 }
 

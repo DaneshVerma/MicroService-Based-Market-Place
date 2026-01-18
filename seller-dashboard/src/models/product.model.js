@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema({
         },
         currency: {
             type: String,
-            enum: [ 'USD', 'INR' ],
+            enum: ['USD', 'INR'],
             default: 'INR'
         }
     },
@@ -35,7 +35,7 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0
     }
-})
+});
 
 productSchema.index({ title: 'text', description: 'text' });
 

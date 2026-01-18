@@ -9,4 +9,4 @@ connect();
 
 app.listen(config.PORT, () => {
     console.log(`Payment service is running on port ${config.PORT}`);
-})
+});

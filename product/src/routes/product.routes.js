@@ -11,22 +11,21 @@ const upload = multer({ storage: multer.memoryStorage() });
 // POST /api/products
 router.post(
     '/',
-    createAuthMiddleware([ 'admin', 'seller' ]),
+    createAuthMiddleware(['admin', 'seller']),
     upload.array('images', 5),
     createProductValidators,
     productController.createProduct
 );
 
 // GET /api/products
-router.get('/', productController.getProducts)
+router.get('/', productController.getProducts);
 
 
+router.patch('/:id', createAuthMiddleware(['seller']), productController.updateProduct);
+router.delete('/:id', createAuthMiddleware(['seller']), productController.deleteProduct);
 
-router.patch("/:id", createAuthMiddleware([ "seller" ]), productController.updateProduct);
-router.delete("/:id", createAuthMiddleware([ "seller" ]), productController.deleteProduct);
 
-
-router.get("/seller", createAuthMiddleware([ "seller" ]), productController.getProductsBySeller);
+router.get('/seller', createAuthMiddleware(['seller']), productController.getProductsBySeller);
 
 
 // GET /api/products/:id

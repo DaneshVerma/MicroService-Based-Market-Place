@@ -1,7 +1,6 @@
 const cartModel = require('../models/cart.model');
 
 
-
 async function getCart(req, res) {
 
     const user = req.user;
@@ -28,7 +27,7 @@ async function addItemToCart(req, res) {
 
     const { productId, qty } = req.body;
 
-    const user = req.user
+    const user = req.user;
 
     let cart = await cartModel.findOne({ user: user.id });
 

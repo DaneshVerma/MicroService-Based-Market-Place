@@ -1,7 +1,7 @@
-const userModel = require("../models/user.model")
-const productModel = require("../models/product.model")
-const orderModel = require("../models/order.model")
-const paymentModel = require("../models/payment.model")
+const userModel = require('../models/user.model');
+const productModel = require('../models/product.model');
+const orderModel = require('../models/order.model');
+const paymentModel = require('../models/payment.model');
 
 
 async function getMetrics(req, res) {
@@ -15,7 +15,7 @@ async function getMetrics(req, res) {
         // Get all orders containing seller's products
         const orders = await orderModel.find({
             'items.product': { $in: productIds },
-            status: { $in: [ "CONFIRMED", "SHIPPED", "DELIVERED" ] }
+            status: { $in: ['CONFIRMED', 'SHIPPED', 'DELIVERED'] }
         });
 
         // Sales: total number of items sold
@@ -37,7 +37,7 @@ async function getMetrics(req, res) {
         const topProducts = Object.entries(productSales)
             .sort((a, b) => b[ 1 ] - a[ 1 ])
             .slice(0, 5)
-            .map(([ productId, qty ]) => {
+            .map(([productId, qty]) => {
                 const prod = products.find(p => p._id.equals(productId));
                 return prod ? { id: prod._id, title: prod.title, sold: qty } : null;
             })
@@ -49,9 +49,9 @@ async function getMetrics(req, res) {
             topProducts
         });
     } catch (error) {
-        console.error("Error fetching metrics:", error)
+        console.error('Error fetching metrics:', error);
         return res.status(500).json({
-            message: "Internal Server Error"
+            message: 'Internal Server Error'
         });
     }
 }
@@ -79,9 +79,9 @@ async function getOrders(req, res) {
         }).filter(order => order.items.length > 0);
         return res.json(filteredOrders);
     } catch (error) {
-        console.error("Error fetching orders:", error)
+        console.error('Error fetching orders:', error);
         return res.status(500).json({
-            message: "Internal Server Error"
+            message: 'Internal Server Error'
         });
     }
 }
@@ -95,9 +95,9 @@ async function getProducts(req, res) {
 
         return res.json(products);
     } catch (error) {
-        console.error("Error fetching products:", error)
+        console.error('Error fetching products:', error);
         return res.status(500).json({
-            message: "Internal Server Error"
+            message: 'Internal Server Error'
         });
     }
 
@@ -107,4 +107,4 @@ module.exports = {
     getMetrics,
     getOrders,
     getProducts
-}
+};
