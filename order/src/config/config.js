@@ -1,13 +1,13 @@
-const { config } = require("dotenv");
+const { config } = require('dotenv');
 config();
 
 module.exports = {
   PORT: process.env.PORT || 3003,
-  JWT_SECRET: process.env.JWT_SECRET || "test-secret",
-  JWT_COOKIE_NAME: process.env.JWT_COOKIE_NAME || "token",
-  MONGO_URI: process.env.MONGO_URI || "mongodb://localhost:27017/order-service",
+  JWT_SECRET: process.env.JWT_SECRET || 'test-secret',
+  JWT_COOKIE_NAME: process.env.JWT_COOKIE_NAME || 'token',
+  MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/order-service',
   RABBITMQ_URL: process.env.RABBITMQ_URL,
-  
+
   // Service URLs
   AUTH_SERVICE_URL: process.env.AUTH_SERVICE_URL || "http://localhost:3000",
   PRODUCT_SERVICE_URL: process.env.PRODUCT_SERVICE_URL || "http://localhost:3001",
