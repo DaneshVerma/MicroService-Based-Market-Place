@@ -1,5 +1,5 @@
 const express = require('express');
-const { connect, subscribeToQueue } = require('./broker/broker');
+const { connect } = require('./broker/broker');
 const setListeners = require('./broker/listeners');
 const app = express();
 

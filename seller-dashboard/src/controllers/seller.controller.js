@@ -1,7 +1,5 @@
-const userModel = require('../models/user.model');
 const productModel = require('../models/product.model');
 const orderModel = require('../models/order.model');
-const paymentModel = require('../models/payment.model');
 
 
 async function getMetrics(req, res) {
@@ -28,14 +26,14 @@ async function getMetrics(req, res) {
                 if (productIds.includes(item.product)) {
                     sales += item.quantity;
                     revenue += item.price.amount * item.quantity;
-                    productSales[ item.product ] = (productSales[ item.product ] || 0) + item.quantity;
+                    productSales[item.product] = (productSales[item.product] || 0) + item.quantity;
                 }
             });
         });
 
         // Top products by quantity sold
         const topProducts = Object.entries(productSales)
-            .sort((a, b) => b[ 1 ] - a[ 1 ])
+            .sort((a, b) => b[1] - a[1])
             .slice(0, 5)
             .map(([productId, qty]) => {
                 const prod = products.find(p => p._id.equals(productId));

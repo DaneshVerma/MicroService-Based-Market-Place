@@ -26,9 +26,7 @@ const searchProduct = tool(async ({ query, token }) => {
 
 
 const addProductToCart = tool(async ({ productId, qty = 1, token }) => {
-
-
-    const response = await axios.post(`${config.CART_SERVICE_URL}/api/cart/items`, {
+    await axios.post(`${config.CART_SERVICE_URL}/api/cart/items`, {
         productId,
         qty
     }, {

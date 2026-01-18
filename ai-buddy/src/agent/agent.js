@@ -1,6 +1,6 @@
 const { StateGraph, MessagesAnnotation } = require('@langchain/langgraph');
 const { ChatGoogleGenerativeAI } = require('@langchain/google-genai');
-const { ToolMessage, AIMessage, HumanMessage } = require('@langchain/core/messages');
+const { ToolMessage, AIMessage } = require('@langchain/core/messages');
 const tools = require('./tools');
 
 
@@ -13,13 +13,13 @@ const model = new ChatGoogleGenerativeAI({
 const graph = new StateGraph(MessagesAnnotation)
     .addNode('tools', async (state, config) => {
 
-        const lastMessage = state.messages[ state.messages.length - 1 ];
+        const lastMessage = state.messages[state.messages.length - 1];
 
         const toolsCall = lastMessage.tool_calls;
 
         const toolCallResults = await Promise.all(toolsCall.map(async (call) => {
 
-            const tool = tools[ call.name ];
+            const tool = tools[call.name];
             if (!tool) {
                 throw new Error(`Tool ${call.name} not found`);
             }
@@ -37,7 +37,7 @@ const graph = new StateGraph(MessagesAnnotation)
 
         return state;
     })
-    .addNode('chat', async (state, config) => {
+    .addNode('chat', async (state, _config) => {
         const response = await model.invoke(state.messages, { tools: [tools.searchProduct, tools.addProductToCart] });
 
 
@@ -49,7 +49,7 @@ const graph = new StateGraph(MessagesAnnotation)
     .addEdge('__start__', 'chat')
     .addConditionalEdges('chat', async (state) => {
 
-        const lastMessage = state.messages[ state.messages.length - 1 ];
+        const lastMessage = state.messages[state.messages.length - 1];
 
         if (lastMessage.tool_calls && lastMessage.tool_calls.length > 0) {
             return 'tools';
