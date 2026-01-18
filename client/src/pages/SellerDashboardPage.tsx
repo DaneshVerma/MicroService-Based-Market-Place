@@ -194,7 +194,7 @@ export function SellerDashboardPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className='w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[100px]'
+                  className='w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-25'
                   required
                 />
               </div>

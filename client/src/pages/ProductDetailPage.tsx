@@ -99,7 +99,7 @@ export function ProductDetailPage() {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`h-20 w-20 rounded-md overflow-hidden border-2 flex-shrink-0 ${
+                  className={`h-20 w-20 rounded-md overflow-hidden border-2 shrink-0 ${
                     selectedImage === index
                       ? "border-primary"
                       : "border-transparent"

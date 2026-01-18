@@ -1,73 +1,89 @@
-# React + TypeScript + Vite
+# Marketplace Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React frontend for the Microservice-Based Marketplace.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 18** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool
+- **Tailwind CSS v4** - Styling
+- **shadcn/ui** - UI components
+- **TanStack Query** - Data fetching & caching
+- **Zustand** - State management
+- **React Router** - Routing
+- **Axios** - HTTP client
+- **Lucide React** - Icons
 
-## React Compiler
+## Project Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+client/
+├── src/
+│   ├── components/
+│   │   ├── layout/          # Layout components (Navbar, Footer)
+│   │   ├── ui/              # Reusable UI components (shadcn)
+│   │   └── ProtectedRoute.tsx
+│   ├── config/
+│   │   └── api.config.ts    # API configuration & query keys
+│   ├── hooks/               # Custom React Query hooks
+│   ├── lib/
+│   │   └── utils.ts         # Utility functions
+│   ├── pages/               # Page components
+│   ├── services/            # API service functions
+│   ├── stores/              # Zustand stores
+│   ├── types/               # TypeScript types
+│   ├── App.tsx
+│   └── router.tsx           # React Router configuration
+├── .env.example             # Environment variables template
+└── package.json
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 1. Install dependencies
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd client
+npm install
 ```
+
+### 2. Configure environment
+
+```bash
+cp .env.example .env
+```
+
+### 3. Start development server
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173`
+
+## Features
+
+### For Buyers
+
+- Browse and search products
+- Filter by category, price
+- Add products to cart
+- Checkout with address management
+- View order history
+
+### For Sellers
+
+- Seller dashboard
+- Add/Edit/Delete products
+- View product inventory
+
+## API Integration
+
+The client connects to 8 microservices on ports 3000-3007.
+
+## Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build

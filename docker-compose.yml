@@ -56,14 +56,6 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=
       - RABBITMQ_URL=amqp://rabbitmq:5672
-      - AUTH_SERVICE_URL=http://auth:3000
-      - PRODUCT_SERVICE_URL=http://product:3001
-      - CART_SERVICE_URL=http://cart:3002
-      - ORDER_SERVICE_URL=http://order:3003
-      - PAYMENT_SERVICE_URL=http://payment:3004
-      - AI_BUDDY_SERVICE_URL=http://ai-buddy:3005
-      - NOTIFICATION_SERVICE_URL=http://notification:3006
-      - SELLER_DASHBOARD_SERVICE_URL=http://seller-dashboard:3007
     depends_on:
       - mongodb
       - rabbitmq
@@ -87,14 +79,6 @@ services:
       - IMAGEKIT_PUBLIC_KEY=${IMAGEKIT_PUBLIC_KEY:-}
       - IMAGEKIT_PRIVATE_KEY=${IMAGEKIT_PRIVATE_KEY:-}
       - IMAGEKIT_URL_ENDPOINT=${IMAGEKIT_URL_ENDPOINT:-}
-      - AUTH_SERVICE_URL=http://auth:3000
-      - PRODUCT_SERVICE_URL=http://product:3001
-      - CART_SERVICE_URL=http://cart:3002
-      - ORDER_SERVICE_URL=http://order:3003
-      - PAYMENT_SERVICE_URL=http://payment:3004
-      - AI_BUDDY_SERVICE_URL=http://ai-buddy:3005
-      - NOTIFICATION_SERVICE_URL=http://notification:3006
-      - SELLER_DASHBOARD_SERVICE_URL=http://seller-dashboard:3007
     depends_on:
       - mongodb
       - rabbitmq
@@ -114,14 +98,6 @@ services:
       - MONGO_URI=mongodb://mongodb:27017/marketPlace-cart
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
       - RABBITMQ_URL=amqp://rabbitmq:5672
-      - AUTH_SERVICE_URL=http://auth:3000
-      - PRODUCT_SERVICE_URL=http://product:3001
-      - CART_SERVICE_URL=http://cart:3002
-      - ORDER_SERVICE_URL=http://order:3003
-      - PAYMENT_SERVICE_URL=http://payment:3004
-      - AI_BUDDY_SERVICE_URL=http://ai-buddy:3005
-      - NOTIFICATION_SERVICE_URL=http://notification:3006
-      - SELLER_DASHBOARD_SERVICE_URL=http://seller-dashboard:3007
     depends_on:
       - mongodb
       - rabbitmq
@@ -141,14 +117,8 @@ services:
       - MONGO_URI=mongodb://mongodb:27017/marketPlace-order
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
       - RABBITMQ_URL=amqp://rabbitmq:5672
-      - AUTH_SERVICE_URL=http://auth:3000
-      - PRODUCT_SERVICE_URL=http://product:3001
       - CART_SERVICE_URL=http://cart:3002
-      - ORDER_SERVICE_URL=http://order:3003
-      - PAYMENT_SERVICE_URL=http://payment:3004
-      - AI_BUDDY_SERVICE_URL=http://ai-buddy:3005
-      - NOTIFICATION_SERVICE_URL=http://notification:3006
-      - SELLER_DASHBOARD_SERVICE_URL=http://seller-dashboard:3007
+      - PRODUCT_SERVICE_URL=http://product:3001
     depends_on:
       - mongodb
       - rabbitmq
@@ -168,16 +138,8 @@ services:
       - MONGO_URI=mongodb://mongodb:27017/marketPlace-payment
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
       - RABBITMQ_URL=amqp://rabbitmq:5672
-      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-}
-      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET:-}
-      - AUTH_SERVICE_URL=http://auth:3000
-      - PRODUCT_SERVICE_URL=http://product:3001
-      - CART_SERVICE_URL=http://cart:3002
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
       - ORDER_SERVICE_URL=http://order:3003
-      - PAYMENT_SERVICE_URL=http://payment:3004
-      - AI_BUDDY_SERVICE_URL=http://ai-buddy:3005
-      - NOTIFICATION_SERVICE_URL=http://notification:3006
-      - SELLER_DASHBOARD_SERVICE_URL=http://seller-dashboard:3007
     depends_on:
       - mongodb
       - rabbitmq
@@ -196,14 +158,8 @@ services:
       - PORT=3005
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
-      - AUTH_SERVICE_URL=http://auth:3000
       - PRODUCT_SERVICE_URL=http://product:3001
       - CART_SERVICE_URL=http://cart:3002
-      - ORDER_SERVICE_URL=http://order:3003
-      - PAYMENT_SERVICE_URL=http://payment:3004
-      - AI_BUDDY_SERVICE_URL=http://ai-buddy:3005
-      - NOTIFICATION_SERVICE_URL=http://notification:3006
-      - SELLER_DASHBOARD_SERVICE_URL=http://seller-dashboard:3007
     networks:
       - marketplace-network
     restart: unless-stopped
@@ -223,14 +179,6 @@ services:
       - SMTP_USER=${SMTP_USER:-}
       - SMTP_PASS=${SMTP_PASS:-}
       - EMAIL_FROM=${EMAIL_FROM:-noreply@marketplace.com}
-      - AUTH_SERVICE_URL=http://auth:3000
-      - PRODUCT_SERVICE_URL=http://product:3001
-      - CART_SERVICE_URL=http://cart:3002
-      - ORDER_SERVICE_URL=http://order:3003
-      - PAYMENT_SERVICE_URL=http://payment:3004
-      - AI_BUDDY_SERVICE_URL=http://ai-buddy:3005
-      - NOTIFICATION_SERVICE_URL=http://notification:3006
-      - SELLER_DASHBOARD_SERVICE_URL=http://seller-dashboard:3007
     depends_on:
       - rabbitmq
     networks:
@@ -249,17 +197,29 @@ services:
       - MONGO_URI=mongodb://mongodb:27017/marketPlace-seller-dashboard
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
       - RABBITMQ_URL=amqp://rabbitmq:5672
-      - AUTH_SERVICE_URL=http://auth:3000
-      - PRODUCT_SERVICE_URL=http://product:3001
-      - CART_SERVICE_URL=http://cart:3002
-      - ORDER_SERVICE_URL=http://order:3003
-      - PAYMENT_SERVICE_URL=http://payment:3004
-      - AI_BUDDY_SERVICE_URL=http://ai-buddy:3005
-      - NOTIFICATION_SERVICE_URL=http://notification:3006
-      - SELLER_DASHBOARD_SERVICE_URL=http://seller-dashboard:3007
     depends_on:
       - mongodb
       - rabbitmq
+    networks:
+      - marketplace-network
+    restart: unless-stopped
+
+  # ===================
+  # Frontend Client
+  # ===================
+  client:
+    build:
+      context: ./client
+      dockerfile: dockerfile
+    container_name: marketplace-client
+    ports:
+      - "80:80"
+    depends_on:
+      - auth
+      - product
+      - cart
+      - order
+      - payment
     networks:
       - marketplace-network
     restart: unless-stopped
